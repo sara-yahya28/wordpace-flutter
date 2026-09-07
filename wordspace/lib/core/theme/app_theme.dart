@@ -54,4 +54,6 @@ class AppTheme {
       bodyMedium: TextStyle(color: primaryLight, fontSize: 14),
     ),
   );
+
+  static Color? get primaryColor => null;
 }
