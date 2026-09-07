@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wordspace/features/post/presentation/screens/post_details_screen.dart';
 import 'package:wordspace/features/post/presentation/widgets/post_card_widget.dart';
 import 'package:wordspace/core/theme/app_theme.dart';
 
@@ -64,6 +65,7 @@ class PostScreen extends StatelessWidget {
 
 ];
 
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Wordpace'),
@@ -75,6 +77,7 @@ class PostScreen extends StatelessWidget {
         itemCount: posts.length,
         itemBuilder: (context, index) {
           final post = posts[index];
+           
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -89,7 +92,10 @@ class PostScreen extends StatelessWidget {
             ),
           );
         },
+       
+        
       ),
+      
     );
   }
 }

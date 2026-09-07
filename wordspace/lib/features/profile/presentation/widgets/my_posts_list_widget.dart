@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wordspace/core/theme/app_theme.dart';
+import 'package:wordspace/features/post/presentation/screens/post_details_screen.dart';
 
 class MyPostsListWidget extends StatelessWidget {
   const MyPostsListWidget({super.key});
@@ -64,6 +65,12 @@ class MyPostsListWidget extends StatelessWidget {
             ),
             onTap: () {
               // سيتم ربط فتح تفاصيل المنشور لاحقاً
+              Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const PostDetailsScreen(),
+    ),
+  );
             },
           ),
         );

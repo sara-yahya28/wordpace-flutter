@@ -20,8 +20,8 @@ class DioConsumer extends ApiConsumer {
 // interceptor to add token
     dio.interceptors.add(
       InterceptorsWrapper(
-        //حذفت ال async
-        onRequest: (options, handler) {
+        
+        onRequest: (options, handler)async {
           final token = cacheHelper.getDataString(key: 'token');
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
