@@ -25,8 +25,7 @@ Future<void> init() async {
   sl.registerLazySingleton<LoginUseCase>(()=>LoginUseCase(repository: sl()));
   sl.registerLazySingleton<RegisterUseCase>(()=>RegisterUseCase(repository:sl()));
 
-  sl.registerLazySingleton<CacheHelper>(() => CacheHelper());
-  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
+sl.registerLazySingleton<CacheHelper>(() => CacheHelper(sharedPreferences: sl()));  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
   sl.registerLazySingleton<ApiConsumer>(
     () => DioConsumer(dio: sl(), cacheHelper: sl()),
   );

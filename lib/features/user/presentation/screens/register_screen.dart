@@ -156,9 +156,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             if (!RegExp(r'[0-9]').hasMatch(value)) {
                               return 'Must contain at least one number (0-9)';
                             }
-                            if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
-                              return 'Must contain at least one special character (!@#\$%...)';
-                            }
                             return null;
                           },
                           suffixIcon: IconButton(
