@@ -1,3 +1,0 @@
-class PostEntity {
-  PostEntity();
-}
