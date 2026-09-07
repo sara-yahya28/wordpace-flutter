@@ -6,13 +6,11 @@ import 'package:wordspace/features/user/data/datasources/user_local_data_source.
 import 'package:wordspace/features/user/data/datasources/user_remote_data_source.dart';
 import 'package:wordspace/features/user/data/models/auth_model.dart';
 import 'package:wordspace/features/user/domain/repositories/user_repository.dart';
-
 import '../../../../core/databases/cache/cache_helper.dart';
 import '../../../../core/params/params.dart';
 import '../../domain/entities/user_entitiy.dart';
 
 class UserRepositoryImpl implements UserRepository {
-  //i think there is bracket not closed
   final NetworkInfo networkInfo;
   final UserRemoteDataSource remoteDataSource;
   final UserLocalDataSource localDataSource;
@@ -61,9 +59,11 @@ class UserRepositoryImpl implements UserRepository {
         final remoteUser = await remoteDataSource.login(params);
         await cacheHelper.saveData(
             key: 'token', value: remoteUser.token); //store token in cacheHelper
+            
         await localDataSource.cacheUser(remoteUser.user); //stores Last user
         return Right(remoteUser);
       } on ServerException catch (e) {
+              print('❌ ServerException: ${e.errorModel.errorMessage}');
         return Left(
           Failure(
             errMessage: e.errorModel.errorMessage ?? 'Error Occurred In Server',
@@ -107,7 +107,6 @@ class UserRepositoryImpl implements UserRepository {
         );
       }
     } else {
-      // لا يوجد اتصال بالإنترنت
       return Left(
         Failure(
           errMessage: 'لا يوجد اتصال بالإنترنت',

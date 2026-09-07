@@ -6,11 +6,13 @@ import 'package:wordspace/core/theme/app_theme.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 import 'package:wordspace/features/user/presentation/screens/login_screen.dart';
 import 'package:wordspace/features/user/presentation/screens/register_screen.dart';
-import 'package:wordspace/home_page.dart';
+import 'package:wordspace/features/user/presentation/screens/welcome_screen.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
+
   runApp(
     DevicePreview(
       enabled: !kReleaseMode,
@@ -28,12 +30,17 @@ class MyApp extends StatelessWidget {
     print('UserCubit is ready: ${cubit.runtimeType}');
 
     return MaterialApp(
-      debugShowCheckedModeBanner: false, 
+      debugShowCheckedModeBanner: false,
       title: 'WordSpace',
       theme: AppTheme.lightTheme,
       locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
-      home:  RegisterScreen(),
+      // home: RegisterScreen(), // <-- replace this
+      home: const WelcomeScreen(), // <-- new home
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+      },
     );
   }
 }

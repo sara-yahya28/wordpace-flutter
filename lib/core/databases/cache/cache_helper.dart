@@ -1,59 +1,47 @@
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CacheHelper {
- static late SharedPreferences sharedPreferences;
+  final SharedPreferences sharedPreferences;
 
-  init() async {
-    sharedPreferences = await SharedPreferences.getInstance();
+  CacheHelper({required this.sharedPreferences});
+
+  Future<void> saveData({required String key, required dynamic value}) async {
+    // ✅ طباعة للتأكد من أن الدالة بتتنادى
+    print('🔐 Saving data: key=$key, value=$value');
+
+    if (value is String) {
+      await sharedPreferences.setString(key, value);
+    } else if (value is int) {
+      await sharedPreferences.setInt(key, value);
+    } else if (value is bool) {
+      await sharedPreferences.setBool(key, value);
+    } else if (value is double) {
+      await sharedPreferences.setDouble(key, value);
+    } else {
+      await sharedPreferences.setString(key, value.toString());
+    }
+
+    // ✅ طباعة بعد الحفظ للتأكد
+    print('✅ Data saved successfully for key: $key');
   }
 
-  String? getDataString({
-    required String key,
-  }) {
+  String? getDataString({required String key}) {
     return sharedPreferences.getString(key);
   }
 
-  Future<bool> saveData({required String key, required dynamic value}) async {
-    if (value is bool) {
-      return await sharedPreferences.setBool(key, value);
-    }
-    if (value is String) {
-      return await sharedPreferences.setString(key, value);
-    }
-
-    if (value is int) {
-      return await sharedPreferences.setInt(key, value);
-    } else {
-      return await sharedPreferences.setDouble(key, value);
-    }
+  bool? getDataBool({required String key}) {
+    return sharedPreferences.getBool(key);
   }
 
-  dynamic getData({required String key}) {
-    return sharedPreferences.get(key);
+  int? getDataInt({required String key}) {
+    return sharedPreferences.getInt(key);
   }
 
-  Future<bool> removeData({required String key}) async {
-    return await sharedPreferences.remove(key);
-  }
-  Future<bool> containsKey({required String key}) async {
-    return sharedPreferences.containsKey(key);
+  double? getDataDouble({required String key}) {
+    return sharedPreferences.getDouble(key);
   }
 
-  Future<bool> clearData() async {
-    return await sharedPreferences.clear();
-  }
-
-  Future<dynamic> put({
-    required String key,
-    required dynamic value,
-  }) async {
-    if (value is String) {
-      return await sharedPreferences.setString(key, value);
-    } else if (value is bool) {
-      return await sharedPreferences.setBool(key, value);
-    } else {
-      return await sharedPreferences.setInt(key, value);
-    }
+  Future<void> removeData({required String key}) async {
+    await sharedPreferences.remove(key);
   }
 }
