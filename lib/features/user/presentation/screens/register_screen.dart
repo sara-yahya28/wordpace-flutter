@@ -63,9 +63,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<UserCubit>(),
-      child: Scaffold(
+    return  Scaffold(
         body: BlocConsumer<UserCubit, UserState>(
           listener: (context, state) {
             if (state is UserLoaded) {
@@ -209,7 +207,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Register Button
                         CustomButton(
                           text: 'Get Started',
-                          onPressed: () => _register(context),
+                          onPressed: () => Navigator.pushNamed(context, '/home'),
                           isLoading: isLoading,
                         ),
                         const SizedBox(height: 12),
@@ -248,7 +246,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             );
           },
         ),
-      ),
     );
   }
 }

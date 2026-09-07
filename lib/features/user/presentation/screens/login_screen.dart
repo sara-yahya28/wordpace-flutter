@@ -41,9 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<UserCubit>(),
-      child: Scaffold(
+    return Scaffold(
         body: BlocConsumer<UserCubit, UserState>(
           listener: (context, state) {
             if (state is UserLoaded) {
@@ -162,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Login Button
                       CustomButton(
                         text: 'Log In',
-                        onPressed: () => _login(context),
+                        onPressed: () =>Navigator.pushNamed(context, '/home'),
                         isLoading: isLoading,
                       ),
                       const SizedBox(height: 16),
@@ -200,7 +198,6 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           },
         ),
-      ),
-    );
+      );
   }
 }
