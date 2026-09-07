@@ -2,7 +2,7 @@ import 'package:wordspace/core/databases/api/end_points.dart';
 import 'package:wordspace/features/user/data/models/user_model.dart';
 
 class AuthModel {
-  final String? message; 
+  final String? message;
   final String token;
   final UserModel user;
 
@@ -13,11 +13,27 @@ class AuthModel {
   });
 
   factory AuthModel.fromJson(Map<String, dynamic> json) {
-    return AuthModel(
-      message: null, 
-      token: json[ApiKeys.token] ?? '',
-      user: UserModel.fromJson(json), 
-    );
+// checks if there's user
+    final bool hasNestedUser = json.containsKey('user') && json['user'] is Map;
+    
+// nested structure(login)
+    if (hasNestedUser) {
+      final userData = json['user'] as Map<String, dynamic>;
+      return AuthModel(
+        message: json['message'] as String?,
+        token: json['token'] as String? ?? '',
+        user: UserModel.fromJson(userData),//usermodel from userData
+      );
+    }
+    
+// flat structure(register)
+    else {
+      return AuthModel(
+        message: json['message'] as String?,
+        token: json['token'] as String? ?? '',
+        user: UserModel.fromJson(json),//userModel from json
+      );
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -28,7 +44,6 @@ class AuthModel {
     };
   }
 }
-
 /*
 WHAT:
    - Represents the API response for login/register endpoints.

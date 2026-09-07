@@ -65,6 +65,19 @@ class UserCubit extends Cubit<UserState> {
         (auth) => emit(UserLoaded(user: auth.user.toEntity())));
   }
 
+// check authenticated user
+bool isAuthenticated() {
+  final token = cacheHelper.getDataString(key: 'token');
+  return token != null && token.isNotEmpty;
+}
+
+// get stored token
+// Get stored token
+String? getStoredToken() {
+  return cacheHelper.getDataString(key: 'token');
+}
+
+
   // Logout
   Future<void>logout() async{
 await cacheHelper.removeData(key:'token');
