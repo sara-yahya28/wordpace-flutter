@@ -1,12 +1,13 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CacheHelper {
-  final SharedPreferences sharedPreferences;
+  static late SharedPreferences sharedPreferences;
 
-  CacheHelper({required this.sharedPreferences});
+init() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+  }
 
   Future<void> saveData({required String key, required dynamic value}) async {
-    // ✅ طباعة للتأكد من أن الدالة بتتنادى
     print('🔐 Saving data: key=$key, value=$value');
 
     if (value is String) {
