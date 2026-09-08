@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wordspace/core/di/injection.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_state.dart';
 import 'package:wordspace/features/user/presentation/widgets/auth_footer.dart';
@@ -53,53 +52,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
 
       context.read<UserCubit>().register(
-            name,
-            email,
-            password,
-            confirmPassword,
-          );
+        name,
+        email,
+        password,
+        confirmPassword,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-        body: BlocConsumer<UserCubit, UserState>(
-          listener: (context, state) {
-            if (state is UserLoaded) {
-              Navigator.pushReplacementNamed(context, '/home');
-            } else if (state is UserError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.errMessage),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          },
-          builder: (context, state) {
-            final isLoading = state is UserLoading;
-            return SafeArea(
-              child: Center( 
+    return Scaffold(
+      body: BlocConsumer<UserCubit, UserState>(
+        listener: (context, state) {
+          if (state is UserLoaded) {
+            Navigator.pushReplacementNamed(context, '/home');
+          } else if (state is UserError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              
+              SnackBar(
+                content: Text(state.errMessage),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          final isLoading = state is UserLoading;
+          return Center(
+            child: SingleChildScrollView(
+              child: Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Form(
                     key: _formKey,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,  
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Header (Logo + Title + Subtitle)
                         const AuthHeader(
                           title: 'Create Your Account',
                           subtitle: 'Join our community and start sharing your ideas',
                           showLogo: true,
                         ),
                         const SizedBox(height: 24),
-
-                        // Full Name Field
+            
                         CustomTextField(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           hint: 'Full Name',
                           icon: Icons.person_outlined,
                           controller: _nameController,
@@ -115,9 +114,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 12),
-
-                        // Email Field
+            
                         CustomTextField(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           hint: 'Email address',
                           icon: Icons.email_outlined,
                           controller: _emailController,
@@ -134,9 +133,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 12),
-
-                        // Password Field
+            
                         CustomTextField(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           hint: 'Password',
                           icon: Icons.lock_outlined,
                           obscureText: !_isPasswordVisible,
@@ -171,9 +170,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-
-                        // Confirm Password Field
+            
                         CustomTextField(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           hint: 'Confirm Password',
                           icon: Icons.lock_outline,
                           obscureText: !_isConfirmPasswordVisible,
@@ -190,8 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
-                                _isConfirmPasswordVisible =
-                                    !_isConfirmPasswordVisible;
+                                _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
                               });
                             },
                             icon: Icon(
@@ -203,16 +201,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-
-                        // Register Button
-                        CustomButton(
-                          text: 'Get Started',
-                          onPressed: () => Navigator.pushNamed(context, '/home'),
-                          isLoading: isLoading,
-                        ),
+            
+                        isLoading
+                            ? const CircularProgressIndicator(color: Colors.grey)
+                            : CustomButton(
+                                text: 'Get Started',
+                                onPressed: () {
+                                  _register(context);
+                                },
+                                width: 15,
+                              ),
                         const SizedBox(height: 12),
-
-                        // Or continue with
+            
                         const Row(
                           children: [
                             Expanded(child: Divider()),
@@ -224,14 +224,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-
-                        // Social Buttons
+            
                         const SocialLoginButtons(),
                         const SizedBox(height: 16),
-
-                        // Footer (Already have an account? Log In)
+            
                         AuthFooter(
-                          text: "Already have an account?",
+                          text: 'Already have an account?',
                           actionText: 'Log In',
                           onTap: () {
                             Navigator.pushReplacementNamed(context, '/login');
@@ -243,9 +241,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

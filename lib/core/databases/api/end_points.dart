@@ -1,5 +1,6 @@
 class EndPoints {
-  static const String baseUrl = "http://127.0.0.1:8000/api"; // غيّر عند النشر
+  static const String baseUrl =
+      "http://192.168.0.34:8000/api"; // غيّر عند النشر
 
   // Auth
   static const String register = '/register';
@@ -39,6 +40,7 @@ class ApiKeys {
   static String title = "title";
   static String content = "content";
   static String status = "status";
+  static String body = "body";
 
   static String commentContent = "content"; // نفس content لكن للتوضيح
 

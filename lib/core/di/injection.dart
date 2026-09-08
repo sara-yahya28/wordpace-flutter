@@ -23,14 +23,20 @@ import '../../features/profile/presentation/cubit/profile_cubit.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  final sharedPrefs = await SharedPreferences.getInstance();
-  sl.registerLazySingleton(() => sharedPrefs);
+
+  // final sharedPrefs = await SharedPreferences.getInstance();
+  // sl.registerLazySingleton(() => sharedPrefs);
+
+  final cacheHelper = CacheHelper();
+  await cacheHelper.init();
+
   sl.registerLazySingleton(() => Dio());
   sl.registerLazySingleton(() => Connectivity());
   sl.registerLazySingleton<LoginUseCase>(()=>LoginUseCase(repository: sl()));
   sl.registerLazySingleton<RegisterUseCase>(()=>RegisterUseCase(repository:sl()));
 
-sl.registerLazySingleton<CacheHelper>(() => CacheHelper(sharedPreferences: sl()));  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
+sl.registerLazySingleton<CacheHelper>(() => cacheHelper);
+sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
   sl.registerLazySingleton<ApiConsumer>(
     () => DioConsumer(dio: sl(), cacheHelper: sl()),
   );

@@ -12,7 +12,7 @@ import 'package:wordspace/main_layout_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await di.init(); // مهم جداً عشان الـ DI يشتغل
+  await di.init(); 
 
   runApp(
     DevicePreview(
@@ -28,7 +28,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<UserCubit>(
-      // استخدمي di.sl عشان تجيبي الـ Cubit مع كل تبعياته
       create: (context) => di.sl<UserCubit>()..isAuthenticated(), // أو ..loadUser() حسب اسم الدالة عندك
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
