@@ -19,11 +19,10 @@ class AuthHeader extends StatelessWidget {
         if (showLogo)
           Image.asset(
             'assets/images/WordSpace-Logo.png',
-            height: 150,
+            height: 100,
             width: 150,
             fit: BoxFit.contain,
           ),
-        const SizedBox(height: 16),
         Text(
           title,
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(

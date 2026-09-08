@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wordspace/core/theme/app_theme.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final String hint;
   final IconData? icon;
   final bool obscureText;
@@ -9,6 +9,7 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final Widget? suffixIcon;
   final TextInputType keyboardType;
+  final AutovalidateMode autovalidateMode;
 
   const CustomTextField({
     super.key,
@@ -19,20 +20,28 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.suffixIcon,
     this.keyboardType = TextInputType.text,
+    required this.autovalidateMode,
   });
 
   @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
+      autovalidateMode: widget.autovalidateMode,
+      controller: widget.controller,
+      obscureText: widget.obscureText,
+      keyboardType: widget.keyboardType,
       textInputAction: TextInputAction.next,
-      validator: validator,
+      validator: widget.validator,
       decoration: InputDecoration(
-        hintText: hint,
-        prefixIcon: icon != null ? Icon(icon, color: AppTheme.primaryMedium) : null,
-        suffixIcon: suffixIcon,
+        hintText: widget.hint,
+        prefixIcon:
+            widget.icon != null ? Icon(widget.icon, color: AppTheme.primaryMedium) : null,
+        suffixIcon: widget.suffixIcon,
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(

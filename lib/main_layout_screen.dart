@@ -22,16 +22,12 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   void initState() {
     super.initState();
     _screens = [
-      // الرئيسية
       const PostScreen(),
       
-      //  إضافة منشور
       const Center(child: Text('Add Post Screen', style: TextStyle(fontSize: 20))),
       
-      //  الإعجابات
       const Center(child: Text('Likes Screen', style: TextStyle(fontSize: 20))),
 
-      //  البروفايل
       BlocProvider(
         create: (context) => sl<ProfileCubit>()..getProfileStats(),
         child: const ProfileScreen(),
