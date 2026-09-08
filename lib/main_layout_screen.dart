@@ -4,6 +4,7 @@ import 'package:wordspace/core/di/injection.dart';
 import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:wordspace/features/profile/presentation/screens/profile_screen.dart';
 import 'package:wordspace/core/theme/app_theme.dart';
+import 'package:wordspace/features/post/presentation/screens/post_screen.dart';
 
 class MainLayoutScreen extends StatefulWidget {
   const MainLayoutScreen({super.key});
@@ -13,7 +14,7 @@ class MainLayoutScreen extends StatefulWidget {
 }
 
 class _MainLayoutScreenState extends State<MainLayoutScreen> {
-  int _currentIndex = 3; //(اغير للهوم بعدين) يفتح افتراضياً على شاشة البروفايل
+  int _currentIndex = 0; 
 
   late final List<Widget> _screens;
 
@@ -22,7 +23,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     super.initState();
     _screens = [
       // الرئيسية
-      const Center(child: Text('Home Screen', style: TextStyle(fontSize: 20))),
+      const PostScreen(),
       
       //  إضافة منشور
       const Center(child: Text('Add Post Screen', style: TextStyle(fontSize: 20))),

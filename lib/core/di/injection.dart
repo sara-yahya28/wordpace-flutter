@@ -1,6 +1,6 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wordspace/core/databases/api/api_consumer.dart';
 import 'package:wordspace/core/databases/api/dio_consumer.dart';
@@ -14,6 +14,11 @@ import 'package:wordspace/features/user/domain/usecases/get_user.dart';
 import 'package:wordspace/features/user/domain/usecases/login_usecase.dart';
 import 'package:wordspace/features/user/domain/usecases/register_usecase.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
+import '../../features/profile/data/datasources/profile_remote_data_source.dart';
+import '../../features/profile/data/repositories/profile_repository_impl.dart';
+import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/profile/domain/usecases/get_profile_stats_usecase.dart';
+import '../../features/profile/presentation/cubit/profile_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -56,4 +61,40 @@ sl.registerFactory<UserCubit>(()=>UserCubit(
    loginUseCase: sl(),
     getUser: sl(), userLocalDataSource: sl(), cacheHelper: sl()));
 
+
+// Profile Feature
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(api: sl()),
+  );
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+  sl.registerLazySingleton<GetProfileStatsUseCase>(
+    () => GetProfileStatsUseCase(repository: sl()),
+  );
+  sl.registerFactory(() => ProfileCubit(getProfileStatsUseCase: sl()));
+
+  // post feature
+  // sl.registerLazySingleton<PostRemoteDataSource>(
+  //   () => PostRemoteDataSourceImpl(api: sl()),
+  // );
+
+  // sl.registerLazySingleton<PostRepository>(
+  //   () => PostRepositoryImpl(
+  //     remoteDataSource: sl(),
+  //   ),
+  // );
+
+  // sl.registerLazySingleton<GetPostsUseCase>(
+  //   () => GetPostsUseCase(repository: sl()),
+  // );
+
+  // sl.registerFactory<PostCubit>(
+  //   () => PostCubit(
+  //     getPostsUseCase: sl(),
+  //   ),
+  // );
 }
