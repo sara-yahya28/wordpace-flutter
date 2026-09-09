@@ -35,7 +35,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     if (await networkInfo.isConnected!) {
       try {
         final myPosts = await remoteDataSource.getMyPosts();
-        return Right(myPosts);
+        return Right(myPosts.cast<PostEntity>());
       } on ServerException catch (e) {
         return Left(Failure(errMessage: e.errorModel.message ?? 'خطأ في السيرفر'));
       }

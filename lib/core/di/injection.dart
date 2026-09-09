@@ -6,6 +6,11 @@ import 'package:wordspace/core/databases/api/api_consumer.dart';
 import 'package:wordspace/core/databases/api/dio_consumer.dart';
 import 'package:wordspace/core/connection/network_info.dart';
 import 'package:wordspace/core/databases/cache/cache_helper.dart';
+import 'package:wordspace/features/post/data/datasources/post_remote_data_source.dart';
+import 'package:wordspace/features/post/data/repositories/post_repository_impl.dart';
+import 'package:wordspace/features/post/domain/repositories/post_repository.dart';
+import 'package:wordspace/features/post/domain/usecases/get_posts_usecase.dart';
+import 'package:wordspace/features/post/presentation/cubit/post_cubit.dart';
 import 'package:wordspace/features/user/data/datasources/user_local_data_source.dart';
 import 'package:wordspace/features/user/data/datasources/user_remote_data_source.dart';
 import 'package:wordspace/features/user/data/repositories/user_repository_impl.dart';
@@ -84,23 +89,23 @@ sl.registerFactory<UserCubit>(()=>UserCubit(
   sl.registerFactory(() => ProfileCubit(getProfileStatsUseCase: sl()));
 
   // post feature
-  // sl.registerLazySingleton<PostRemoteDataSource>(
-  //   () => PostRemoteDataSourceImpl(api: sl()),
-  // );
+  sl.registerLazySingleton<PostRemoteDataSource>(
+    () => PostRemoteDataSourceImpl(api: sl()),
+  );
 
-  // sl.registerLazySingleton<PostRepository>(
-  //   () => PostRepositoryImpl(
-  //     remoteDataSource: sl(),
-  //   ),
-  // );
+  sl.registerLazySingleton<PostRepository>(
+    () => PostRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
 
-  // sl.registerLazySingleton<GetPostsUseCase>(
-  //   () => GetPostsUseCase(repository: sl()),
-  // );
+  sl.registerLazySingleton<GetPostsUseCase>(
+    () => GetPostsUseCase(repository: sl()),
+  );
 
-  // sl.registerFactory<PostCubit>(
-  //   () => PostCubit(
-  //     getPostsUseCase: sl(),
-  //   ),
-  // );
+  sl.registerFactory<PostCubit>(
+    () => PostCubit(
+      getPostsUseCase: sl(),
+    ),
+  );
 }

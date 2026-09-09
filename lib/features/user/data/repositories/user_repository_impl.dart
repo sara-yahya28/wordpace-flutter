@@ -69,13 +69,15 @@ class UserRepositoryImpl implements UserRepository {
             errMessage: e.errorModel.errorMessage ?? 'Error Occurred In Server',
           ),
         );
-      } catch (e) {
-        return Left(
-          Failure(
-            errMessage: 'Unexpected error Has occurred   ',
-          ),
-        );
-      }
+      } catch (e, stacktrace) {
+  print('❌ الخطأ الفعلي: $e');
+  print('❌ التفاصيل: $stacktrace');
+  return Left(
+    Failure(
+      errMessage: 'الخطأ الفعلي: $e',
+    ),
+  );
+}
     } else {
       return Left(
         Failure(

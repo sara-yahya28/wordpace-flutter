@@ -2,8 +2,10 @@ import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wordspace/core/di/injection.dart' as di;  // استخدمي الـ injection
+import 'package:wordspace/core/di/injection.dart' as di;
 import 'package:wordspace/core/theme/app_theme.dart';
+import 'package:wordspace/features/post/presentation/cubit/post_cubit.dart';
+import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 import 'package:wordspace/features/user/presentation/screens/login_screen.dart';
 import 'package:wordspace/features/user/presentation/screens/register_screen.dart';
@@ -12,7 +14,7 @@ import 'package:wordspace/main_layout_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await di.init(); 
+  await di.init();
 
   runApp(
     DevicePreview(
@@ -27,8 +29,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<UserCubit>(
-      create: (context) => di.sl<UserCubit>()..isAuthenticated(), // أو ..loadUser() حسب اسم الدالة عندك
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<UserCubit>(
+          create: (context) => di.sl<UserCubit>()..isAuthenticated(),
+        ),
+        BlocProvider<PostCubit>(
+          create: (context) => di.sl<PostCubit>()..getPosts(), // استخدم الدالة الموجودة
+        ),
+        BlocProvider<ProfileCubit>(
+          create: (context) => di.sl<ProfileCubit>()..getProfileStats(),
+        ),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'WordSpace',
