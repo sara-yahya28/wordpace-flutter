@@ -9,6 +9,7 @@ class PostCardWidget extends StatelessWidget {
   final int likes;
   final int comments;
   final bool isLiked;
+ final VoidCallback? onTap;
 
   const PostCardWidget({
     super.key,
@@ -19,6 +20,7 @@ class PostCardWidget extends StatelessWidget {
     required this.likes,
     required this.comments,
     this.isLiked = false,
+    this.onTap,
   });
 
   @override
@@ -33,6 +35,11 @@ class PostCardWidget extends StatelessWidget {
           color: AppTheme.primaryLight.withOpacity(0.25),
         ),
       ),
+
+
+child: InkWell(
+        onTap: onTap,
+  borderRadius: BorderRadius.circular(16),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -157,6 +164,14 @@ class PostCardWidget extends StatelessWidget {
           ],
         ),
       ),
+      ),
+
+
+
+
+
+
+
     );
   }
 }
