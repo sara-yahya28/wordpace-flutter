@@ -15,6 +15,7 @@ class PostScreen extends StatefulWidget {
 
 class _PostScreenState extends State<PostScreen> {
   late ScrollController _scrollController;
+  final Map<int, int> updatedCommentsCount = {};
 
   @override
   void initState() {
@@ -97,10 +98,11 @@ class _PostScreenState extends State<PostScreen> {
                     title: post.title,
                     content: post.content,
                     likes: post.likesCount,
-                    comments: post.commentsCount,
+                    comments:
+                        updatedCommentsCount[post.id] ?? post.commentsCount,
                     isLiked: post.likedByMe,
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      final updatedCount = await Navigator.push<int>(
                         context,
                         MaterialPageRoute(
                           builder: (context) => PostDetailsScreen(
@@ -108,6 +110,12 @@ class _PostScreenState extends State<PostScreen> {
                           ),
                         ),
                       );
+
+                      if (updatedCount != null) {
+                        setState(() {
+                          updatedCommentsCount[post.id] = updatedCount;
+                        });
+                      }
                     },
                   ),
                 );

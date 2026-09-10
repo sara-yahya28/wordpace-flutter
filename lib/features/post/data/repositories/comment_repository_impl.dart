@@ -31,4 +31,26 @@ class CommentRepositoryImpl implements CommentRepository {
       );
     }
   }
+  @override
+  Future<Either<Failure, CommentEntity>> addComment(
+      int postId, String body) async {
+    try {
+      final response = await remoteDataSource.addComment(
+        postId,
+        body,
+      );
+
+      return Right(response.toEntity());
+    } on ServerException catch (e) {
+      return Left(
+        Failure(
+          errMessage:
+              e.errorModel.errorMessage ?? 'حدث خطأ في السيرفر',
+        ),
+      );
+    }
+  }
+
+
+
 }
