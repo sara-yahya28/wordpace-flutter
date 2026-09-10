@@ -1,5 +1,0 @@
-class TemplateEntity {
-
-
-  TemplateEntity();
-}

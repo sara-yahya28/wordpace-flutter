@@ -36,7 +36,7 @@ class PostModel {
     return PostModel(
       id: json[ApiKeys.id],
       title: json[ApiKeys.title],
-      content: json[ApiKeys.body],
+      content: json[ApiKeys.body] ?? json[ApiKeys.content] ?? '',
       status: json[ApiKeys.status],
       user: PostUserModel.fromJson(json[ApiKeys.user]),
       commentsCount: json[ApiKeys.commentsCount],

@@ -1,40 +1,54 @@
-// import 'package:dartz/dartz.dart';
+import 'package:dartz/dartz.dart';
+import 'package:wordspace/features/likes/domain/repositories/like_repository.dart';
+import 'package:wordspace/features/post/data/models/post_model.dart';
+import 'package:wordspace/features/post/domain/entities/post_entitiy.dart';
+import '../../../../core/errors/failure.dart';
+import '../datasources/like_local_data_source.dart';
 
-// import '../../../../core/connection/network_info.dart';
-// import '../../../../core/errors/expentions.dart';
-// import '../../../../core/errors/failure.dart';
-// import '../../../../core/params/params.dart';
-// import '../../domain/entities/template_entitiy.dart';
-// import '../../domain/repositories/template_repository.dart';
-// import '../datasources/template_local_data_source.dart';
-// import '../datasources/template_remote_data_source.dart';
+class LikeRepositoryImpl extends LikeRepository {
+  final LikeLocalDataSource likeLocalDataSource;
+  LikeRepositoryImpl({required this.likeLocalDataSource});
 
-// class TemplateRepositoryImpl extends TemplateRepository {
-//   final NetworkInfo networkInfo;
-//   final TemplateRemoteDataSource remoteDataSource;
-//   final TemplateLocalDataSource localDataSource;
-//   TemplateRepositoryImpl(
-//       {required this.remoteDataSource,
-//       required this.localDataSource,
-//       required this.networkInfo});
-//   @override
-//   Future<Either<Failure, TemplateEntity>> getTemplate(
-//       {required TemplateParams params}) async {
-//     if (await networkInfo.isConnected!) {
-//       try {
-//         final remoteTemplate = await remoteDataSource.getTemplate(params);
-//         localDataSource.cacheTemplate(remoteTemplate);
-//         return Right(remoteTemplate);
-//       } on ServerException catch (e) {
-//         return Left(Failure(errMessage: e.errorModel.errorMessage));
-//       }
-//     } else {
-//       try {
-//         final localTemplate = await localDataSource.getLastTemplate();
-//         return Right(localTemplate);
-//       } on CacheExeption catch (e) {
-//         return Left(Failure(errMessage: e.errorMessage));
-//       }
-//     }
-//   }
-// }
+  @override
+  Future<Either<Failure, List<PostEntity>>> getFavoritePosts() async {
+    try {
+      final localLikedPost = await likeLocalDataSource.getFavoritePosts();
+      return Right(localLikedPost.cast<PostEntity>());
+    } catch (e) {
+      return Left(Failure(errMessage: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> saveFavoritePost(
+      {required PostEntity post}) async {
+    try {
+      final postModel = PostModel.fromEntity(post);
+      await likeLocalDataSource.saveFavoritePost(postModel);
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure(errMessage: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> isFavorite({required int postId}) async {
+    try {
+      final isLiked = await likeLocalDataSource.isFavorite(postId);
+      return Right(isLiked);
+    } catch (e) {
+      return Left(Failure(errMessage: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeFavoritePost(
+      {required int postId}) async {
+    try {
+      await likeLocalDataSource.removeFavoritePost(postId);
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure(errMessage: e.toString()));
+    }
+  }
+}

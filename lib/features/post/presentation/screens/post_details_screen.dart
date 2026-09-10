@@ -24,6 +24,29 @@ class PostDetailsScreen extends StatelessWidget {
         title: const Text('Post Details'),
         automaticallyImplyLeading: true,
       ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PostDetailsWidget(
+                username: post.user.name,
+                time: formatPostTime(post.createdAt),
+                title: post.title,
+                content: post.content,
+                likes: post.likesCount,
+                comments: post.commentsCount,
+                post: post,
+              ),
+              const SizedBox(height: 24),
+              const Divider(color: Colors.grey),
+              const SizedBox(height: 24),
+              Text(
+                'Comments (${post.commentsCount})',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
       body: BlocProvider(
         create: (_) => sl<CommentCubit>()..getComments(post.id),
         child: SingleChildScrollView(
