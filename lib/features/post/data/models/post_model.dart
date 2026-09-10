@@ -31,6 +31,7 @@ class PostModel {
     required this.updatedAt,
   });
 
+//JSON to Model
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return PostModel(
       id: json[ApiKeys.id],
@@ -46,6 +47,7 @@ class PostModel {
     );
   }
 
+//Model to JSON
   Map<String, dynamic> toJson() {
     return {
       ApiKeys.id: id,
@@ -61,6 +63,7 @@ class PostModel {
     };
   }
 
+//model to entity
   PostEntity toEntity() {
     return PostEntity(
       id: id,
@@ -76,6 +79,7 @@ class PostModel {
     );
   }
 
+//entity to model
   factory PostModel.fromEntity(PostEntity entity) {
     return PostModel(
       id: entity.id,

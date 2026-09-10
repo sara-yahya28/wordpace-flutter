@@ -5,14 +5,12 @@ class CommentItemWidget extends StatelessWidget {
   final String username;
   final String time;
   final String comment;
-  final int likes;
 
   const CommentItemWidget({
     super.key,
     required this.username,
     required this.time,
     required this.comment,
-    required this.likes,
   });
 
   @override
@@ -86,21 +84,9 @@ Expanded(
 
           const SizedBox(width: 8),
 
-          Icon(
-            Icons.favorite_border,
-            color: AppTheme.primaryLight,
-            size: 16,
-          ),
 
-          const SizedBox(width: 3),
 
-          Text(
-            '$likes',
-            style: const TextStyle(
-              color: AppTheme.primaryLight,
-              fontSize: 11,
-            ),
-          ),
+
         ],
       ),
     ],

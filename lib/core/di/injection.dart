@@ -32,6 +32,13 @@ import 'package:wordspace/features/user/domain/usecases/login_usecase.dart';
 import 'package:wordspace/features/user/domain/usecases/register_usecase.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 
+
+import 'package:wordspace/features/post/data/datasources/comment_remote_data_source.dart';
+import 'package:wordspace/features/post/data/repositories/comment_repository_impl.dart';
+import 'package:wordspace/features/post/domain/repositories/comment_repository.dart';
+import 'package:wordspace/features/post/domain/usecases/get_comments_usecase.dart';
+import 'package:wordspace/features/post/presentation/cubit/comment_cubit.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -132,4 +139,29 @@ Future<void> init() async {
       saveFavoritePostUseCase: sl(),
     ),
   );
+
+  // comment feature
+  sl.registerLazySingleton<CommentRemoteDataSource>(
+    () => CommentRemoteDataSourceImpl(api: sl()),
+  );
+
+  sl.registerLazySingleton<CommentRepository>(
+    () => CommentRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<GetCommentsUseCase>(
+    () => GetCommentsUseCase(repository: sl()),
+  );
+
+  sl.registerFactory<CommentCubit>(
+    () => CommentCubit(
+      getCommentsUseCase: sl(),
+    ),
+  );
+
+
+
+
 }
