@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wordspace/core/di/injection.dart';
-import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:wordspace/features/likes/presentation/screens/favorits_screen.dart';
 import 'package:wordspace/features/profile/presentation/screens/profile_screen.dart';
 import 'package:wordspace/core/theme/app_theme.dart';
 import 'package:wordspace/features/post/presentation/screens/post_screen.dart';
@@ -14,7 +14,7 @@ class MainLayoutScreen extends StatefulWidget {
 }
 
 class _MainLayoutScreenState extends State<MainLayoutScreen> {
-  int _currentIndex = 0; 
+  int _currentIndex = 0;
 
   late final List<Widget> _screens;
 
@@ -22,16 +22,14 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   void initState() {
     super.initState();
     _screens = [
+      // 0: Home
       const PostScreen(),
-      
+      // 1: Add (placeholder)
       const Center(child: Text('Add Post Screen', style: TextStyle(fontSize: 20))),
-      
-      const Center(child: Text('Likes Screen', style: TextStyle(fontSize: 20))),
-
-      BlocProvider(
-        create: (context) => sl<ProfileCubit>()..getProfileStats(),
-        child: const ProfileScreen(),
-      ),
+      // 2: Likes / Favorites
+      const FavoritsScreen(),
+      // 3: Profile
+      const ProfileScreen(),
     ];
   }
 
@@ -102,7 +100,6 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   }) {
     final isSelected = _currentIndex == index;
     final color = isSelected ? AppTheme.backgroundColor : Colors.white60;
-//تنسيقات الايقونه والنص
     return Expanded(
       child: InkWell(
         onTap: () {

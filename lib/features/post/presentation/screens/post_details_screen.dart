@@ -33,7 +33,7 @@ class PostDetailsScreen extends StatelessWidget {
                 content: post.content,
                 likes: post.likesCount,
                 comments: post.commentsCount,
-                isLiked: post.likedByMe,
+                post: post,
               ),
               const SizedBox(height: 24),
               const Divider(color: Colors.grey),

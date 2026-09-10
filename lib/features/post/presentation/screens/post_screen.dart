@@ -92,13 +92,13 @@ class _PostScreenState extends State<PostScreen> {
                   padding: const EdgeInsets.only(bottom: 12),
                   //نأخذ البيانات من الPostEntity
                   child: PostCardWidget(
+                    post: post,
                     username: post.user.name,
                     time: formatPostTime(post.createdAt),
                     title: post.title,
                     content: post.content,
                     likes: post.likesCount,
                     comments: post.commentsCount,
-                    isLiked: post.likedByMe,
                     onTap: () {
                       Navigator.push(
                         context,
