@@ -6,6 +6,8 @@ import 'package:wordspace/features/profile/presentation/widgets/my_posts_list_wi
 import 'package:wordspace/features/profile/presentation/widgets/profile_header_widget.dart';
 import 'package:wordspace/features/profile/presentation/widgets/profile_stats_bar_widget.dart';
 import 'package:wordspace/core/theme/app_theme.dart';
+import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
+import 'package:wordspace/features/user/presentation/screens/welcome_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -19,8 +21,18 @@ class ProfileScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.red),
-            onPressed: () {
-              // سيتم ربط حدث تسجيل الخروج لاحقاً
+            onPressed: () async {
+              // do logout action
+              await context.read<UserCubit>().logout();
+
+              // still in widget
+              if (!context.mounted) return;
+
+              // delete all pages and go to welcome screen
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                  ((route) => false));
             },
           ),
         ],
@@ -29,11 +41,9 @@ class ProfileScreen extends StatelessWidget {
         builder: (context, state) {
           if (state is GetProfileLoadingState) {
             return const Center(child: CircularProgressIndicator());
-          } 
-          else if (state is GetProfileErrorState) {
+          } else if (state is GetProfileErrorState) {
             return Center(child: Text(state.errMessage));
-          }
-           else if (state is GetProfileSuccessState) {
+          } else if (state is GetProfileSuccessState) {
             final profile = state.profile;
 
             return SingleChildScrollView(
