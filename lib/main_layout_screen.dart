@@ -5,7 +5,8 @@ import 'package:wordspace/features/likes/presentation/screens/favorits_screen.da
 import 'package:wordspace/features/profile/presentation/screens/profile_screen.dart';
 import 'package:wordspace/core/theme/app_theme.dart';
 import 'package:wordspace/features/post/presentation/screens/post_screen.dart';
-
+import 'package:wordspace/features/post/presentation/screens/add_post_screen.dart';
+import 'package:wordspace/core/widgets/custom_snack_bar.dart';
 class MainLayoutScreen extends StatefulWidget {
   const MainLayoutScreen({super.key});
 
@@ -25,8 +26,20 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       // 0: Home
       const PostScreen(),
       // 1: Add (placeholder)
-      const Center(child: Text('Add Post Screen', style: TextStyle(fontSize: 20))),
-      // 2: Likes / Favorites
+  // 1: Add Post
+  AddPostScreen(
+    onPostAdded: () {
+      setState(() {
+        _currentIndex = 0;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        CustomSnackBar.success(
+          message: 'Post added successfully',
+        ),
+      );
+    },
+  ),      // 2: Likes / Favorites
       const FavoritsScreen(),
       // 3: Profile
       const ProfileScreen(),

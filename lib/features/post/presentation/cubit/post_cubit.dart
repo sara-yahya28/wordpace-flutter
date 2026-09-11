@@ -1,15 +1,17 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wordspace/features/post/domain/entities/post_entitiy.dart';
 import 'package:wordspace/features/post/domain/usecases/get_posts_usecase.dart';
-
 import 'post_state.dart';
+import 'package:wordspace/features/post/domain/usecases/add_post_usecase.dart';
 
 class PostCubit extends Cubit<PostState> {
   final GetPostsUseCase getPostsUseCase;
+  final AddPostUseCase addPostUseCase;
   bool isLoading = false;
 
   PostCubit({
     required this.getPostsUseCase,
+    required this.addPostUseCase,
   }) : super(PostInitial());
 
   int currentPage = 1;
@@ -71,6 +73,33 @@ class PostCubit extends Cubit<PostState> {
         );
 
         isLoading = false;
+      },
+    );
+  }
+
+  Future<void> addPost({
+    required String title,
+    required String body,
+    required String status,
+  }) async {
+    emit(PostAdding());
+
+    final result = await addPostUseCase(
+      title: title,
+      body: body,
+      status: status,
+    );
+
+    result.fold(
+      (failure) {
+        emit(PostAddFailure(message: failure.errMessage));
+      },
+      (post) {
+        if (post.status == 'published') {
+          posts = [post, ...posts];
+        }
+
+        emit(PostAdded(post: post));
       },
     );
   }
