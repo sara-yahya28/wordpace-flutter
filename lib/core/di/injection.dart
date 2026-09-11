@@ -38,6 +38,7 @@ import 'package:wordspace/features/post/data/repositories/comment_repository_imp
 import 'package:wordspace/features/post/domain/repositories/comment_repository.dart';
 import 'package:wordspace/features/post/domain/usecases/get_comments_usecase.dart';
 import 'package:wordspace/features/post/presentation/cubit/comment_cubit.dart';
+import 'package:wordspace/features/post/domain/usecases/add_comment_usecase.dart';
 
 final sl = GetIt.instance;
 
@@ -158,10 +159,14 @@ Future<void> init() async {
   sl.registerFactory<CommentCubit>(
     () => CommentCubit(
       getCommentsUseCase: sl(),
+      addCommentUseCase: sl(),
+
     ),
   );
 
-
+sl.registerLazySingleton<AddCommentUseCase>(
+  () => AddCommentUseCase(repository: sl()),
+);
 
 
 }

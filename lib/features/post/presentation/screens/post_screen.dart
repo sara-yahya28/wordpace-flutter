@@ -15,6 +15,7 @@ class PostScreen extends StatefulWidget {
 
 class _PostScreenState extends State<PostScreen> {
   late ScrollController _scrollController;
+  final Map<int, int> updatedCommentsCount = {};
 
   @override
   void initState() {
@@ -24,7 +25,6 @@ class _PostScreenState extends State<PostScreen> {
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
-          //يعني اذا وصلنا الى نهاية الصفحة ناقص 200 بيكسل نعمل تحميل للمنشورات الجديدة
           _scrollController.position.maxScrollExtent - 200) {
         context.read<PostCubit>().getPosts();
       }
@@ -34,7 +34,6 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   @override
-  //نمسح الـScrollController عند الخروج من الصفحة
   void dispose() {
     _scrollController.dispose();
     super.dispose();
@@ -47,8 +46,6 @@ class _PostScreenState extends State<PostScreen> {
         title: const Text('Wordpace'),
         automaticallyImplyLeading: false,
       ),
-      //BlocBuilder وظيفته مراقبة الـPostCubit
-      //كلما تغيرت الـState، يعيد بناء الجزء المطلوب من الشاشة
       body: BlocBuilder<PostCubit, PostState>(
         builder: (context, state) {
           if (state is PostLoading) {
@@ -72,7 +69,6 @@ class _PostScreenState extends State<PostScreen> {
                 : (state as PostLoadingMore).posts;
 
             return ListView.builder(
-              //ربطت الـScrollController بالـListView عشان اقدر اعرف متى وصلنا لنهاية الصفحة
               controller: _scrollController,
               padding: const EdgeInsets.all(16),
               itemCount: posts.length + (state is PostLoadingMore ? 1 : 0),
@@ -90,7 +86,6 @@ class _PostScreenState extends State<PostScreen> {
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  //نأخذ البيانات من الPostEntity
                   child: PostCardWidget(
                     post: post,
                     username: post.user.name,
@@ -98,9 +93,11 @@ class _PostScreenState extends State<PostScreen> {
                     title: post.title,
                     content: post.content,
                     likes: post.likesCount,
-                    comments: post.commentsCount,
-                    onTap: () {
-                      Navigator.push(
+                    comments:
+                        updatedCommentsCount[post.id] ?? post.commentsCount,
+                    isLiked: post.likedByMe,
+                    onTap: () async {
+                      final updatedCount = await Navigator.push<int>(
                         context,
                         MaterialPageRoute(
                           builder: (context) => PostDetailsScreen(
@@ -108,6 +105,12 @@ class _PostScreenState extends State<PostScreen> {
                           ),
                         ),
                       );
+
+                      if (updatedCount != null) {
+                        setState(() {
+                          updatedCommentsCount[post.id] = updatedCount;
+                        });
+                      }
                     },
                   ),
                 );

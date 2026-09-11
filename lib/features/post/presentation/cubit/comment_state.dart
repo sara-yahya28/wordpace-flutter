@@ -21,3 +21,12 @@ class CommentFailure extends CommentState {
     required this.message,
   });
 }
+class CommentAdding extends CommentState {}
+
+class CommentAddFailure extends CommentState {
+  final String message;
+
+  CommentAddFailure({
+    required this.message,
+  });
+}
