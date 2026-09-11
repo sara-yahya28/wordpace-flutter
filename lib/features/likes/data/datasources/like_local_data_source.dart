@@ -1,4 +1,6 @@
+import 'package:wordspace/core/errors/expentions.dart';
 import 'package:wordspace/features/post/data/models/post_model.dart';
+import 'package:wordspace/features/user/data/datasources/user_local_data_source.dart';
 import '../../../../core/databases/cache/cache_helper.dart';
 import 'dart:convert';
 
@@ -11,11 +13,25 @@ abstract class LikeLocalDataSource {
 
 class LikeLocalDataSourceImpl implements LikeLocalDataSource {
   final CacheHelper cache;
-  final String key = "CachedFavoritePosts"; // Changed key to be more specific
-  LikeLocalDataSourceImpl({required this.cache});
+  final UserLocalDataSource userLocalDataSource; // Changed key to be more specific
+  LikeLocalDataSourceImpl({required this.cache, required this.userLocalDataSource});
+
+
+// gets key fot each user
+Future<String?> _getKey() async {
+  try {
+    final user = await userLocalDataSource.getLastUser();
+    return "CachedFavoritePosts_${user.id}";
+  } on CacheException {
+    return null;
+  }
+}
 
   @override
   Future<List<PostModel>> getFavoritePosts() async {
+    final key=await _getKey();
+    if (key==null) return [];
+
     final jsonString = cache.getDataString(key: key);
     if (jsonString != null) {
       final List decodedJson = json.decode(jsonString);
@@ -30,6 +46,9 @@ class LikeLocalDataSourceImpl implements LikeLocalDataSource {
 
   @override
   Future<void> saveFavoritePost(PostModel post) async {
+        final key=await _getKey();
+    if (key==null) return;
+    
     final posts = await getFavoritePosts();
     final exist = posts.any((p) => p.id == post.id);
     if (!exist) {
@@ -49,6 +68,9 @@ class LikeLocalDataSourceImpl implements LikeLocalDataSource {
 
   @override
   Future<void> removeFavoritePost(int postId) async {
+        final key=await _getKey();
+    if (key==null) return ;
+
     final post = await getFavoritePosts();
     post.removeWhere((p) => p.id == postId);
     final String encodedData =

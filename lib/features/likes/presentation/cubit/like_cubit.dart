@@ -22,7 +22,6 @@ class LikeCubit extends Cubit<LikeState> {
   // Load full list from cache (used by Favorites screen)
   Future<void> getFavoritePosts() async {
     emit(GetFavoritePostsLoadingState());
-      print("🟢 saveFavoritePost called. Cubit hashCode: ${this.hashCode}");
     final result = await getFavoritePostsUseCase();
     result.fold(
       (failure) =>
@@ -36,11 +35,9 @@ class LikeCubit extends Cubit<LikeState> {
 
   // Save + optimistically update state (no re-fetch)
 Future<void> saveFavoritePost({required PostEntity post}) async {
-  print("🟢 [CUBIT ${hashCode}] saveFavoritePost called for post.id=${post.id}");
   final result = await saveFavoritePostUseCase(post: post);
   result.fold(
     (failure) {
-      print("🔴 [CUBIT ${hashCode}] save failed: ${failure.errMessage}");
       emit(GetFavoritePostsErrorState(errMessage: failure.errMessage));
     },
     (_) {
@@ -55,7 +52,6 @@ Future<void> saveFavoritePost({required PostEntity post}) async {
         currentPosts.add(post);
       }
       currentIds.add(post.id);
-      print("🟢 [CUBIT ${hashCode}] emitting new state. favoriteIds=$currentIds");
       emit(GetFavoritePostsSuccessState(
         posts: currentPosts,
         favoriteIds: currentIds,
@@ -97,5 +93,10 @@ Future<void> saveFavoritePost({required PostEntity post}) async {
         )),
       );
     }
+  }
+
+// let likes be grey when logged out, without deleting them from cache
+  void reset(){
+    emit(LikeInitialState());
   }
 }

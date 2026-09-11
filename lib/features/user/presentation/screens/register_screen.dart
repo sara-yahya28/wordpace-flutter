@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wordspace/features/likes/presentation/cubit/like_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_state.dart';
 import 'package:wordspace/features/user/presentation/widgets/auth_footer.dart';
@@ -66,6 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: BlocConsumer<UserCubit, UserState>(
         listener: (context, state) {
           if (state is UserLoaded) {
+            context.read<LikeCubit>().getFavoritePosts();
             Navigator.pushReplacementNamed(context, '/home');
           } else if (state is UserError) {
             ScaffoldMessenger.of(context).showSnackBar(

@@ -12,8 +12,10 @@ class LikeRepositoryImpl extends LikeRepository {
   @override
   Future<Either<Failure, List<PostEntity>>> getFavoritePosts() async {
     try {
-      final localLikedPost = await likeLocalDataSource.getFavoritePosts();
-      return Right(localLikedPost.cast<PostEntity>());
+      final List<PostModel> localLikedPost =
+          await likeLocalDataSource.getFavoritePosts();
+      return Right(
+          localLikedPost.map((postModel) => postModel.toEntity()).toList());
     } catch (e) {
       return Left(Failure(errMessage: e.toString()));
     }
