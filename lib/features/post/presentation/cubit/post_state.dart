@@ -33,3 +33,20 @@ class PostFailure extends PostState {
     required this.message,
   });
 }
+class PostAdding extends PostState {}
+
+class PostAdded extends PostState {
+  final PostEntity post;
+
+  PostAdded({
+    required this.post,
+  });
+}
+
+class PostAddFailure extends PostState {
+  final String message;
+
+  PostAddFailure({
+    required this.message,
+  });
+}

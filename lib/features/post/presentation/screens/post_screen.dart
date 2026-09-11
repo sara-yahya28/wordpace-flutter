@@ -63,11 +63,15 @@ class _PostScreenState extends State<PostScreen> {
             );
           }
 
-          if (state is PostSuccess || state is PostLoadingMore) {
+          if (state is PostSuccess ||
+              state is PostLoadingMore ||
+              state is PostAdded) {
             final posts = state is PostSuccess
                 ? state.posts
-                : (state as PostLoadingMore).posts;
-
+                : state is PostLoadingMore
+                    ? state.posts
+                    : context.read<PostCubit>().posts;
+                    
             return ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(16),

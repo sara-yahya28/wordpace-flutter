@@ -16,6 +16,7 @@ import 'package:wordspace/features/likes/presentation/cubit/like_cubit.dart';
 import 'package:wordspace/features/post/data/datasources/post_remote_data_source.dart';
 import 'package:wordspace/features/post/data/repositories/post_repository_impl.dart';
 import 'package:wordspace/features/post/domain/repositories/post_repository.dart';
+import 'package:wordspace/features/post/domain/usecases/add_post_usecase.dart';
 import 'package:wordspace/features/post/domain/usecases/get_posts_usecase.dart';
 import 'package:wordspace/features/post/presentation/cubit/post_cubit.dart';
 import 'package:wordspace/features/profile/data/datasources/profile_remote_data_source.dart';
@@ -31,7 +32,6 @@ import 'package:wordspace/features/user/domain/usecases/get_user.dart';
 import 'package:wordspace/features/user/domain/usecases/login_usecase.dart';
 import 'package:wordspace/features/user/domain/usecases/register_usecase.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
-
 
 import 'package:wordspace/features/post/data/datasources/comment_remote_data_source.dart';
 import 'package:wordspace/features/post/data/repositories/comment_repository_impl.dart';
@@ -113,9 +113,13 @@ Future<void> init() async {
   sl.registerLazySingleton<GetPostsUseCase>(
     () => GetPostsUseCase(repository: sl()),
   );
+  sl.registerLazySingleton<AddPostUseCase>(
+    () => AddPostUseCase(repository: sl()),
+  );
   sl.registerFactory<PostCubit>(
     () => PostCubit(
       getPostsUseCase: sl(),
+      addPostUseCase: sl(),
     ),
   );
 
@@ -160,13 +164,10 @@ Future<void> init() async {
     () => CommentCubit(
       getCommentsUseCase: sl(),
       addCommentUseCase: sl(),
-
     ),
   );
 
-sl.registerLazySingleton<AddCommentUseCase>(
-  () => AddCommentUseCase(repository: sl()),
-);
-
-
+  sl.registerLazySingleton<AddCommentUseCase>(
+    () => AddCommentUseCase(repository: sl()),
+  );
 }

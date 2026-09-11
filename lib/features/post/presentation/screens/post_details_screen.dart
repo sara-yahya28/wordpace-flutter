@@ -44,19 +44,25 @@ class PostDetailsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      PostDetailsWidget(
-                        username: post.user.name,
-                        time: formatPostTime(post.createdAt),
-                        title: post.title,
-                        content: post.content,
-                        likes: post.likesCount,
-                        comments: post.commentsCount,
-                        post: post,
+                      BlocBuilder<CommentCubit, CommentState>(
+                        builder: (context, state) {
+                          final commentsCount =
+                              context.read<CommentCubit>().comments.length;
+
+                          return PostDetailsWidget(
+                            username: post.user.name,
+                            time: formatPostTime(post.createdAt),
+                            title: post.title,
+                            content: post.content,
+                            likes: post.likesCount,
+                            comments: commentsCount,
+                            post: post,
+                          );
+                        },
                       ),
                       const SizedBox(height: 24),
                       const Divider(color: Colors.grey),
                       const SizedBox(height: 24),
-
                       BlocBuilder<CommentCubit, CommentState>(
                         builder: (context, state) {
                           final commentsCount =
@@ -71,9 +77,7 @@ class PostDetailsScreen extends StatelessWidget {
                           );
                         },
                       ),
-
                       const SizedBox(height: 16),
-
                       BlocBuilder<CommentCubit, CommentState>(
                         builder: (context, state) {
                           if (state is CommentLoading) {
@@ -116,13 +120,11 @@ class PostDetailsScreen extends StatelessWidget {
                           return const SizedBox.shrink();
                         },
                       ),
-
                       const SizedBox(height: 20),
                     ],
                   ),
                 ),
               ),
-
               bottomSheet: BlocBuilder<CommentCubit, CommentState>(
                 builder: (context, state) {
                   final isLoading = state is CommentAdding;
