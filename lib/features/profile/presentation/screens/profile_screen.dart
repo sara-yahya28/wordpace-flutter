@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wordspace/features/likes/presentation/cubit/like_cubit.dart';
 import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:wordspace/features/profile/presentation/cubit/profile_state.dart';
 import 'package:wordspace/features/profile/presentation/widgets/my_posts_list_widget.dart';
@@ -27,6 +28,8 @@ class ProfileScreen extends StatelessWidget {
 
               // still in widget
               if (!context.mounted) return;
+
+context.read<LikeCubit>().reset();
 
               // delete all pages and go to welcome screen
               Navigator.pushAndRemoveUntil(

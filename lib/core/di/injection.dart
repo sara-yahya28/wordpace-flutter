@@ -32,7 +32,6 @@ import 'package:wordspace/features/user/domain/usecases/get_user.dart';
 import 'package:wordspace/features/user/domain/usecases/login_usecase.dart';
 import 'package:wordspace/features/user/domain/usecases/register_usecase.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
-
 import 'package:wordspace/features/post/data/datasources/comment_remote_data_source.dart';
 import 'package:wordspace/features/post/data/repositories/comment_repository_impl.dart';
 import 'package:wordspace/features/post/domain/repositories/comment_repository.dart';
@@ -125,7 +124,7 @@ Future<void> init() async {
 
   // Likes Feature
   sl.registerLazySingleton<LikeLocalDataSource>(
-    () => LikeLocalDataSourceImpl(cache: sl()),
+    () => LikeLocalDataSourceImpl(cache: sl(), userLocalDataSource: sl()),
   );
   sl.registerLazySingleton<LikeRepository>(
     () => LikeRepositoryImpl(likeLocalDataSource: sl()),

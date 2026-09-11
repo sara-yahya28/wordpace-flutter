@@ -16,6 +16,7 @@ import 'package:wordspace/main_layout_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
+
   runApp(
     DevicePreview(
       enabled: !kReleaseMode,
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
           create: (context) => di.sl<ProfileCubit>()..getProfileStats(),
         ),
         BlocProvider<LikeCubit>(
-          create: (context) => di.sl<LikeCubit>()..getFavoritePosts(),
+          create: (context) => di.sl<LikeCubit>(),
         ),
       ],
       child: MaterialApp(
