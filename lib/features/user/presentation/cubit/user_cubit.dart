@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wordspace/core/databases/api/end_points.dart';
 import 'package:wordspace/core/databases/cache/cache_helper.dart';
 import 'package:wordspace/features/user/data/datasources/user_local_data_source.dart';
 import 'package:wordspace/features/user/domain/usecases/get_user.dart';
@@ -67,20 +68,19 @@ class UserCubit extends Cubit<UserState> {
 
 // check authenticated user
 bool isAuthenticated() {
-  final token = cacheHelper.getDataString(key: 'token');
+  final token = cacheHelper.getDataString(key:ApiKeys.token);
   return token != null && token.isNotEmpty;
 }
 
-// get stored token
 // Get stored token
 String? getStoredToken() {
-  return cacheHelper.getDataString(key: 'token');
+  return cacheHelper.getDataString(key:ApiKeys.token);
 }
 
 
   // Logout
   Future<void>logout() async{
-await cacheHelper.removeData(key:'token');
+await cacheHelper.removeData(key:ApiKeys.token);
  await userLocalDataSource.clearUser();
  emit(UserInitial());
   }
