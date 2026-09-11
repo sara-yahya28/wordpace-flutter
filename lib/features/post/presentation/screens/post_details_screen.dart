@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wordspace/core/di/injection.dart';
 import 'package:wordspace/features/post/domain/entities/post_entitiy.dart';
+import 'package:wordspace/features/post/presentation/cubit/comment_cubit.dart';
+import 'package:wordspace/features/post/presentation/cubit/comment_state.dart';
 import 'package:wordspace/features/post/presentation/widgets/add_comment_widget.dart';
 import 'package:wordspace/features/post/presentation/widgets/comment_item_widget.dart';
 import 'package:wordspace/features/post/presentation/widgets/post_details_widget.dart';
 import 'package:wordspace/features/post/utils/date_formatter.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wordspace/core/di/injection.dart';
-import 'package:wordspace/features/post/presentation/cubit/comment_cubit.dart';
-import 'package:wordspace/features/post/presentation/cubit/comment_state.dart';
 
 class PostDetailsScreen extends StatelessWidget {
   final PostEntity post;
@@ -51,7 +51,7 @@ class PostDetailsScreen extends StatelessWidget {
                         content: post.content,
                         likes: post.likesCount,
                         comments: post.commentsCount,
-                        isLiked: post.likedByMe,
+                        post: post,
                       ),
                       const SizedBox(height: 24),
                       const Divider(color: Colors.grey),
@@ -59,10 +59,8 @@ class PostDetailsScreen extends StatelessWidget {
 
                       BlocBuilder<CommentCubit, CommentState>(
                         builder: (context, state) {
-                          final commentsCount = context
-                              .read<CommentCubit>()
-                              .comments
-                              .length;
+                          final commentsCount =
+                              context.read<CommentCubit>().comments.length;
 
                           return Text(
                             'Comments ($commentsCount)',

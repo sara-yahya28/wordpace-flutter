@@ -1,5 +1,3 @@
-
-
 import 'package:wordspace/features/post/domain/entities/sub_enities/post_user_entity.dart';
 
 class PostEntity {
