@@ -77,6 +77,8 @@ class PostCubit extends Cubit<PostState> {
     );
   }
 
+  
+
   Future<void> addPost({
     required String title,
     required String body,
@@ -103,4 +105,19 @@ class PostCubit extends Cubit<PostState> {
       },
     );
   }
+
+ void removePostFromList(int postId) {
+  if (state is PostSuccess) {
+    final currentState = state as PostSuccess;
+    
+    // إنشاء قائمة جديدة بدون البوست المحذوف
+    final updatedPosts = currentState.posts.where((post) => post.id != postId).toList();
+
+    emit(PostSuccess(
+      posts: updatedPosts,
+      currentPage: currentState.currentPage,
+      lastPage: currentState.lastPage,
+    ));
+  }
+}
 }

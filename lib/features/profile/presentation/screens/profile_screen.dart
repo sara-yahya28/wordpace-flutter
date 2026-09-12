@@ -1,17 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wordspace/core/theme/app_theme.dart';
 import 'package:wordspace/features/likes/presentation/cubit/like_cubit.dart';
 import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:wordspace/features/profile/presentation/cubit/profile_state.dart';
 import 'package:wordspace/features/profile/presentation/widgets/my_posts_list_widget.dart';
 import 'package:wordspace/features/profile/presentation/widgets/profile_header_widget.dart';
 import 'package:wordspace/features/profile/presentation/widgets/profile_stats_bar_widget.dart';
-import 'package:wordspace/core/theme/app_theme.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 import 'package:wordspace/features/user/presentation/screens/welcome_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cubit = context.read<ProfileCubit>();
+      if (cubit.profileData == null) {
+        cubit.getProfileStats();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,53 +39,76 @@ class ProfileScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.red),
             onPressed: () async {
-              // do logout action
               await context.read<UserCubit>().logout();
 
-              // still in widget
               if (!context.mounted) return;
 
-context.read<LikeCubit>().reset();
+              context.read<LikeCubit>().reset();
 
-              // delete all pages and go to welcome screen
               Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-                  ((route) => false));
+                context,
+                MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                (route) => false,
+              );
             },
           ),
         ],
       ),
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
-          if (state is GetProfileLoadingState) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is GetProfileErrorState) {
-            return Center(child: Text(state.errMessage));
-          } else if (state is GetProfileSuccessState) {
-            final profile = state.profile;
+          final cubit = ProfileCubit.get(context);
 
-            return SingleChildScrollView(
+          //  حالة التحميل لأول مرة فقط (عند فتح التطبيق)
+          if (state is GetProfileLoadingState && cubit.profileData == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          //  حالة الخطأ لأول مرة فقط
+          if (state is GetProfileErrorState && cubit.profileData == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(state.errMessage),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      cubit.getProfileStats();
+                    },
+                    child: const Text('إعادة المحاولة'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final profile = cubit.profileData;
+
+          if (profile == null) {
+            return const SizedBox();
+          }
+
+          //  عرض البيانات بثبات مع ميزة RefreshIndicator للتحديث السلس عند السحب
+          return RefreshIndicator(
+            onRefresh: () async {
+              await cubit.getProfileStats();
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  //  ودجت الصورة والمعلومات
                   ProfileHeaderWidget(
                     name: profile.name,
                     email: profile.email,
                   ),
                   const SizedBox(height: 24),
-
-                  //  ودجت الأرقام والإحصائيات
                   ProfileStatsBarWidget(
                     stats: profile.stats,
                   ),
                   const SizedBox(height: 24),
-
                   const Divider(),
                   const SizedBox(height: 12),
-
-                  // 3 عنوان قسم المنشورات تحته مباشرة
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -82,13 +121,17 @@ context.read<LikeCubit>().reset();
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  const MyPostsListWidget(),
+                  if (state is GetMyPostsLoadingState && cubit.myPostsList.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else
+                    MyPostsListWidget(posts: cubit.myPostsList),
                 ],
               ),
-            );
-          }
-          return const SizedBox();
+            ),
+          );
         },
       ),
     );

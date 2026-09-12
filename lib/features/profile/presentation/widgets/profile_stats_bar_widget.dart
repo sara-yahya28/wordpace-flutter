@@ -16,8 +16,8 @@ class ProfileStatsBarWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildStatItem('Posts', stats.postsCount.toString()),
-        _buildStatItem('Likes', stats.likesCount.toString()),
-        _buildStatItem('Comments', stats.commentsCount.toString()),
+        _buildStatItem('Published', stats.publishedPosts.toString()),
+        _buildStatItem('Draft', stats.drafts.toString()),
       ],
     );
   }
