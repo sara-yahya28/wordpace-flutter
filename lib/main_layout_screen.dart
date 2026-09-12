@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wordspace/core/di/injection.dart';
-import 'package:wordspace/features/likes/presentation/screens/favorits_screen.dart';
-import 'package:wordspace/features/profile/presentation/screens/profile_screen.dart';
 import 'package:wordspace/core/theme/app_theme.dart';
-import 'package:wordspace/features/post/presentation/screens/post_screen.dart';
-import 'package:wordspace/features/post/presentation/screens/add_post_screen.dart';
 import 'package:wordspace/core/widgets/custom_snack_bar.dart';
+import 'package:wordspace/features/likes/presentation/screens/favorits_screen.dart';
+import 'package:wordspace/features/post/presentation/cubit/post_cubit.dart';
+import 'package:wordspace/features/post/presentation/screens/add_post_screen.dart';
+import 'package:wordspace/features/post/presentation/screens/post_screen.dart';
+import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:wordspace/features/profile/presentation/screens/profile_screen.dart';
+
 class MainLayoutScreen extends StatefulWidget {
   const MainLayoutScreen({super.key});
 
@@ -25,21 +27,28 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     _screens = [
       // 0: Home
       const PostScreen(),
-      // 1: Add (placeholder)
-  // 1: Add Post
-  AddPostScreen(
-    onPostAdded: () {
-      setState(() {
-        _currentIndex = 0;
-      });
+      // 1: Add Post
+      AddPostScreen(
+        onPostAdded: () {
+          // إعادة جلب منشورات الهوم
+          context.read<PostCubit>().getPosts();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        CustomSnackBar.success(
-          message: 'Post added successfully',
-        ),
-      );
-    },
-  ),      // 2: Likes / Favorites
+          //  إعادة جلب بيانات وإحصائيات البروفايل
+          context.read<ProfileCubit>().getProfileStats();
+
+          //  التنقل للبروفايل مباشرة
+          setState(() {
+            _currentIndex = 3;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            CustomSnackBar.success(
+              message: 'Post added successfully',
+            ),
+          );
+        },
+      ),
+      // 2: Likes / Favorites
       const FavoritsScreen(),
       // 3: Profile
       const ProfileScreen(),
@@ -74,25 +83,21 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                //  الصفحة الرئيسية
                 _buildNavItem(
                   icon: Icons.home_rounded,
                   label: 'Home',
                   index: 0,
                 ),
-                // إضافة منشور
                 _buildNavItem(
                   icon: Icons.add_circle_outline_rounded,
                   label: 'Add',
                   index: 1,
                 ),
-                //  الإعجابات
                 _buildNavItem(
                   icon: Icons.favorite_border_rounded,
                   label: 'Likes',
                   index: 2,
                 ),
-                //  البروفايل
                 _buildNavItem(
                   icon: Icons.person_outline_rounded,
                   label: 'Profile',
@@ -119,6 +124,14 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           setState(() {
             _currentIndex = index;
           });
+
+          //  عند الانتقال للهوم: إعادة جلب منشورات الهوم للتأكد من اختفاء المنشورات المحذوفة
+          if (index == 0) {
+            context.read<PostCubit>().getPosts();
+          }
+         
+
+         
         },
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,

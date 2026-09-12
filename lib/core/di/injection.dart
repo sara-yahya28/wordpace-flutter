@@ -17,11 +17,13 @@ import 'package:wordspace/features/post/data/datasources/post_remote_data_source
 import 'package:wordspace/features/post/data/repositories/post_repository_impl.dart';
 import 'package:wordspace/features/post/domain/repositories/post_repository.dart';
 import 'package:wordspace/features/post/domain/usecases/add_post_usecase.dart';
+import 'package:wordspace/features/post/domain/usecases/delete_post_usecase.dart';
 import 'package:wordspace/features/post/domain/usecases/get_posts_usecase.dart';
 import 'package:wordspace/features/post/presentation/cubit/post_cubit.dart';
 import 'package:wordspace/features/profile/data/datasources/profile_remote_data_source.dart';
 import 'package:wordspace/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:wordspace/features/profile/domain/repositories/profile_repository.dart';
+import 'package:wordspace/features/profile/domain/usecases/get_my_posts_usecase.dart';
 import 'package:wordspace/features/profile/domain/usecases/get_profile_stats_usecase.dart';
 import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:wordspace/features/user/data/datasources/user_local_data_source.dart';
@@ -98,7 +100,14 @@ Future<void> init() async {
   sl.registerLazySingleton<GetProfileStatsUseCase>(
     () => GetProfileStatsUseCase(repository: sl()),
   );
-  sl.registerFactory(() => ProfileCubit(getProfileStatsUseCase: sl()));
+  sl.registerLazySingleton<GetMyPostsUseCase>(
+    () => GetMyPostsUseCase(repository: sl()),
+  );
+  sl.registerFactory(() => ProfileCubit(
+        getProfileStatsUseCase: sl(),
+        getMyPostsUseCase: sl(),
+        deletePostUseCase: sl(),
+      ));
 
   // Post Feature
   sl.registerLazySingleton<PostRemoteDataSource>(
@@ -120,6 +129,11 @@ Future<void> init() async {
       getPostsUseCase: sl(),
       addPostUseCase: sl(),
     ),
+  );
+
+  
+  sl.registerLazySingleton<DeletePostUseCase>(
+    () => DeletePostUseCase(repository: sl()),
   );
 
   // Likes Feature
