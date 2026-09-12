@@ -8,11 +8,6 @@ import 'package:wordspace/features/user/domain/usecases/register_usecase.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_state.dart';
 import '../../../../core/params/params.dart';
 
-/*
-لا تصنع UserRepositoryImpl ولا Dio ولا CacheHelper، لأن كل هذه الأشياء قد تم إنشاؤها مسبقاً في مكان آخر (في init.dart) ثم تم تمريرها إلى getUser، ثم getUser تم تمريره إلى UserCubit عبر Constructor.
-
- */
-
 class UserCubit extends Cubit<UserState> {
   CacheHelper cacheHelper;
   UserLocalDataSource userLocalDataSource;
@@ -28,31 +23,31 @@ class UserCubit extends Cubit<UserState> {
     required this.getUser,
   }) : super(UserInitial());
 
-// get user
+  // get user
   Future<void> getUserById(int id) async {
     emit(UserLoading());
     final result = await getUser.call(
-      params: UserParams(
-        id: id.toString(),
-      ),
+      params: UserParams(id: id.toString()),
     );
-
     result.fold(
       (failure) => emit(UserError(errMessage: failure.errMessage)),
       (user) => emit(UserLoaded(user: user)),
     );
   }
 
-// login
+  // login
   Future<void> login(String email, String password) async {
     emit(UserLoading());
     final result =
         await loginUseCase.call(LoginParams(email: email, password: password));
 
-    result.fold(((failure) => emit(UserError(errMessage: failure.errMessage))),
-        (auth) => emit(UserLoaded(user: auth.user.toEntity())));
+    result.fold(
+      (failure) => emit(UserError(errMessage: failure.errMessage)),
+      (auth) => emit(UserLoaded(user: auth.user.toEntity())),
+    );
   }
 
+  // register
   Future<void> register(String name, String email, String password,
       String passwordConfirmation) async {
     emit(UserLoading());
@@ -62,26 +57,58 @@ class UserCubit extends Cubit<UserState> {
         password: password,
         passwordConfirmation: passwordConfirmation));
 
-    result.fold((failure) => emit(UserError(errMessage: failure.errMessage)),
-        (auth) => emit(UserLoaded(user: auth.user.toEntity())));
+    result.fold(
+      (failure) => emit(UserError(errMessage: failure.errMessage)),
+      (auth) => emit(UserLoaded(user: auth.user.toEntity())),
+    );
   }
 
-// check authenticated user
-bool isAuthenticated() {
-  final token = cacheHelper.getDataString(key:ApiKeys.token);
-  return token != null && token.isNotEmpty;
-}
+  // ✅ تحقق إذا التوكن موجود (بدون صلاحية)
+  bool isAuthenticated() {
+    final token = cacheHelper.getDataString(key: ApiKeys.token);
+    final hasToken = token != null && token.isNotEmpty;
+    print('🔍 isAuthenticated: $hasToken');
+    return hasToken;
+  }
 
-// Get stored token
-String? getStoredToken() {
-  return cacheHelper.getDataString(key:ApiKeys.token);
-}
+  // ✅ جديد: تحقق من صلاحية التوكن عبر السيرفر
+  Future<bool> verifyToken() async {
+    try {
+      // 1. اقرأ المستخدم المحفوظ
+      final cachedUser = await userLocalDataSource.getLastUser();
+      print('🔍 verifyToken: cached user id = ${cachedUser.id}');
 
+      // 2. استدعِ /api/user/{id}
+      final result = await getUser.call(
+        params: UserParams(id: cachedUser.id.toString()),
+      );
+
+      // 3. تحقق من النتيجة
+      return result.fold(
+        (failure) {
+          print('❌ verifyToken: فشل - ${failure.errMessage}');
+          return false;
+        },
+        (user) {
+          print('✅ verifyToken: التوكن صالح');
+          return true;
+        },
+      );
+    } catch (e) {
+      print('❌ verifyToken: خطأ - $e');
+      return false;
+    }
+  }
+
+  // Get stored token
+  String? getStoredToken() {
+    return cacheHelper.getDataString(key: ApiKeys.token);
+  }
 
   // Logout
-  Future<void>logout() async{
-await cacheHelper.removeData(key:ApiKeys.token);
- await userLocalDataSource.clearUser();
- emit(UserInitial());
+  Future<void> logout() async {
+    await cacheHelper.removeData(key: ApiKeys.token);
+    await userLocalDataSource.clearUser();
+    emit(UserInitial());
   }
 }
