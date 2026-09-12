@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wordspace/core/di/injection.dart';
 import 'package:wordspace/features/likes/presentation/cubit/like_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_state.dart';
@@ -26,6 +25,23 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final savedEmail = context
+          .read<UserCubit>()
+          .cacheHelper
+          .getDataString(key: 'remembered_email');
+      if (savedEmail != null && savedEmail.isNotEmpty && mounted) {
+        setState(() {
+          _emailController.text = savedEmail;
+          _rememberMe = true;
+        });
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -36,6 +52,18 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
+
+      if (_rememberMe) {
+        context.read<UserCubit>().cacheHelper.saveData(
+              key: 'remembered_email',
+              value: email,
+            );
+      } else {
+        context.read<UserCubit>().cacheHelper.removeData(
+              key: 'remembered_email',
+            );
+      }
+
       context.read<UserCubit>().login(email, password);
     }
   }
@@ -64,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: Form(
                 key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
+                // ⚠️ لا نستخدم autovalidateMode هنا — كل حقل يتحكم بنفسه
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -78,7 +106,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     // Email Field
                     CustomTextField(
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       hint: 'Email address',
                       icon: Icons.email_outlined,
                       controller: _emailController,
@@ -87,7 +114,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
                         }
-                        // التحقق من صيغة الإيميل
                         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                             .hasMatch(value)) {
                           return 'Enter a valid email address';
@@ -99,7 +125,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     // Password Field
                     CustomTextField(
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       hint: 'Password',
                       icon: Icons.lock_outlined,
                       obscureText: !_isPasswordVisible,

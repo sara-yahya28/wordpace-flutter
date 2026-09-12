@@ -22,7 +22,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
@@ -53,11 +54,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
 
       context.read<UserCubit>().register(
-        name,
-        email,
-        password,
-        confirmPassword,
-      );
+            name,
+            email,
+            password,
+            confirmPassword,
+          );
     }
   }
 
@@ -71,7 +72,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (state is UserError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              
               SnackBar(
                 content: Text(state.errMessage),
                 backgroundColor: Colors.red,
@@ -88,19 +88,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Form(
                     key: _formKey,
+                    // ⚠️ لا نستخدم autovalidateMode هنا — كل حقل يتحكم بنفسه
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const AuthHeader(
                           title: 'Create Your Account',
-                          subtitle: 'Join our community and start sharing your ideas',
+                          subtitle:
+                              'Join our community and start sharing your ideas',
                           showLogo: true,
                         ),
                         const SizedBox(height: 24),
-            
+
+                        // Full Name
                         CustomTextField(
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           hint: 'Full Name',
                           icon: Icons.person_outlined,
                           controller: _nameController,
@@ -116,9 +118,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 12),
-            
+
+                        // Email
                         CustomTextField(
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           hint: 'Email address',
                           icon: Icons.email_outlined,
                           controller: _emailController,
@@ -135,9 +137,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 12),
-            
+
+                        // Password
                         CustomTextField(
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           hint: 'Password',
                           icon: Icons.lock_outlined,
                           obscureText: !_isPasswordVisible,
@@ -172,9 +174,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-            
+
+                        // Confirm Password
                         CustomTextField(
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           hint: 'Confirm Password',
                           icon: Icons.lock_outline,
                           obscureText: !_isConfirmPasswordVisible,
@@ -191,7 +193,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
-                                _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                                _isConfirmPasswordVisible =
+                                    !_isConfirmPasswordVisible;
                               });
                             },
                             icon: Icon(
@@ -203,9 +206,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-            
+
                         isLoading
-                            ? const CircularProgressIndicator(color: Colors.grey)
+                            ? const CircularProgressIndicator(
+                                color: Colors.grey)
                             : CustomButton(
                                 text: 'Get Started',
                                 onPressed: () {
@@ -214,7 +218,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 width: 15,
                               ),
                         const SizedBox(height: 12),
-            
+
                         const Row(
                           children: [
                             Expanded(child: Divider()),
@@ -226,10 +230,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-            
+
                         const SocialLoginButtons(),
                         const SizedBox(height: 16),
-            
+
                         AuthFooter(
                           text: 'Already have an account?',
                           actionText: 'Log In',
