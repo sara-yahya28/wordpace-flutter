@@ -111,4 +111,8 @@ class UserCubit extends Cubit<UserState> {
     await userLocalDataSource.clearUser();
     emit(UserInitial());
   }
+  // reset state to initial
+void resetState() {
+  emit(UserInitial());
+}
 }

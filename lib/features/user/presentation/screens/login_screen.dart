@@ -23,16 +23,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _rememberMe = false;
   bool _isPasswordVisible = false;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      print('🟦 LoginScreen initState → resetState()');
+      context.read<UserCubit>().resetState();
+
       final savedEmail = context
           .read<UserCubit>()
           .cacheHelper
           .getDataString(key: 'remembered_email');
-      if (savedEmail != null && savedEmail.isNotEmpty && mounted) {
+      if (savedEmail != null && savedEmail.isNotEmpty) {
         setState(() {
           _emailController.text = savedEmail;
           _rememberMe = true;
@@ -48,24 +54,38 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _login(BuildContext context) {
-    if (_formKey.currentState!.validate()) {
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
+  Future<void> _login(BuildContext context) async {
+    print('🟦 _login called');
 
-      if (_rememberMe) {
-        context.read<UserCubit>().cacheHelper.saveData(
-              key: 'remembered_email',
-              value: email,
-            );
-      } else {
-        context.read<UserCubit>().cacheHelper.removeData(
-              key: 'remembered_email',
-            );
-      }
-
-      context.read<UserCubit>().login(email, password);
+    if (!_formKey.currentState!.validate()) {
+      print('🟥 Validation failed');
+      return;
     }
+
+    setState(() => _isSubmitting = true);
+    print('🟦 _isSubmitting = true');
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (_rememberMe) {
+      await context.read<UserCubit>().cacheHelper.saveData(
+            key: 'remembered_email',
+            value: email,
+          );
+    } else {
+      await context.read<UserCubit>().cacheHelper.removeData(
+            key: 'remembered_email',
+          );
+    }
+
+    print('🟦 Calling cubit.login()');
+    await context.read<UserCubit>().login(email, password);
+    print('🟦 cubit.login() returned');
+
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+    print('🟦 _isSubmitting = false');
   }
 
   @override
@@ -73,6 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: BlocConsumer<UserCubit, UserState>(
         listener: (context, state) {
+          print('🟨 Listener state: $state');
           if (state is UserLoaded) {
             context.read<LikeCubit>().getFavoritePosts();
             Navigator.pushReplacementNamed(context, '/home');
@@ -86,17 +107,15 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         },
         builder: (context, state) {
-          final isLoading = state is UserLoading;
+          print('🟩 Builder state: $state | _isSubmitting: $_isSubmitting');
           return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: Form(
                 key: _formKey,
-                // ⚠️ لا نستخدم autovalidateMode هنا — كل حقل يتحكم بنفسه
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Header
                     const AuthHeader(
                       title: 'Welcome Back',
                       subtitle: 'Login to your account to continue',
@@ -104,7 +123,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 40),
 
-                    // Email Field
                     CustomTextField(
                       hint: 'Email address',
                       icon: Icons.email_outlined,
@@ -123,7 +141,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Password Field
                     CustomTextField(
                       hint: 'Password',
                       icon: Icons.lock_outlined,
@@ -154,7 +171,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Remember Me & Forgot Password
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -187,8 +203,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    isLoading
-                        ? const CircularProgressIndicator(color: Colors.grey)
+                    // ✅ الزر يعتمد على _isSubmitting المحلي
+                    _isSubmitting
+                        ? const Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.grey),
+                          )
                         : CustomButton(
                             text: 'Log In',
                             onPressed: () {
@@ -197,7 +217,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                     const SizedBox(height: 16),
 
-                    // Or continue with
                     const Row(
                       children: [
                         Expanded(child: Divider()),
@@ -210,11 +229,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Social Buttons
                     const SocialLoginButtons(),
                     const SizedBox(height: 32),
 
-                    // Footer
                     AuthFooter(
                       text: "Don't have an account?",
                       actionText: 'Sign Up',
