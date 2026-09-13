@@ -9,7 +9,6 @@ class CustomTextField extends StatefulWidget {
   final String? Function(String?)? validator;
   final Widget? suffixIcon;
   final TextInputType keyboardType;
-  // ⚠️ تم إهمال هذه الخاصية — كل حقل يتحكم بنفسه الآن
   final AutovalidateMode? autovalidateMode;
 
   const CustomTextField({
@@ -29,7 +28,6 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  // ✅ نراقب التركيز على هذا الحقل
   final FocusNode _focusNode = FocusNode();
   bool _hasFocus = false;
 
@@ -55,8 +53,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return FormField<String>(
+      initialValue: widget.controller.text,   // ✅ الإصلاح
       validator: widget.validator,
-      // ✅ التحقق الفوري فقط لما الحقل يكون مركز
       autovalidateMode: _hasFocus
           ? AutovalidateMode.onUserInteraction
           : AutovalidateMode.disabled,
@@ -74,7 +72,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 ? Icon(widget.icon, color: AppTheme.primaryMedium)
                 : null,
             suffixIcon: widget.suffixIcon,
-            // ✅ نعرض الخطأ فقط لو الحقل مركز
             errorText: _hasFocus ? state.errorText : null,
             filled: true,
             fillColor: Colors.white,
