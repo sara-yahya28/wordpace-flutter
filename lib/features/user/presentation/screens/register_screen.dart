@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wordspace/features/likes/presentation/cubit/like_cubit.dart';
+import 'package:wordspace/features/post/presentation/cubit/post_cubit.dart';
+import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_state.dart';
 import 'package:wordspace/features/user/presentation/widgets/auth_footer.dart';
@@ -26,6 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       TextEditingController();
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -36,30 +39,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _register(BuildContext context) {
-    if (_formKey.currentState!.validate()) {
-      final name = _nameController.text.trim();
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
-      final confirmPassword = _confirmPasswordController.text.trim();
+  Future<void> _register(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) return;
 
-      if (password != confirmPassword) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Passwords do not match'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-        return;
-      }
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
 
-      context.read<UserCubit>().register(
-            name,
-            email,
-            password,
-            confirmPassword,
-          );
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Passwords do not match'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
     }
+
+    setState(() => _isSubmitting = true);
+
+    await context.read<UserCubit>().register(
+          name,
+          email,
+          password,
+          confirmPassword,
+        );
+
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
   }
 
   @override
@@ -68,7 +76,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: BlocConsumer<UserCubit, UserState>(
         listener: (context, state) {
           if (state is UserLoaded) {
+            // 🔄 تحديث كل الـ Cubits ببيانات المستخدم الجديد
+            context.read<ProfileCubit>().getProfileStats();
+            context.read<PostCubit>().getPosts();
             context.read<LikeCubit>().getFavoritePosts();
+
             Navigator.pushReplacementNamed(context, '/home');
           } else if (state is UserError) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -80,7 +92,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           }
         },
         builder: (context, state) {
-          final isLoading = state is UserLoading;
           return Center(
             child: SingleChildScrollView(
               child: Center(
@@ -88,7 +99,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Form(
                     key: _formKey,
-                    // ⚠️ لا نستخدم autovalidateMode هنا — كل حقل يتحكم بنفسه
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -101,7 +111,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Full Name
                         CustomTextField(
                           hint: 'Full Name',
                           icon: Icons.person_outlined,
@@ -119,7 +128,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 12),
 
-                        // Email
                         CustomTextField(
                           hint: 'Email address',
                           icon: Icons.email_outlined,
@@ -138,7 +146,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 12),
 
-                        // Password
                         CustomTextField(
                           hint: 'Password',
                           icon: Icons.lock_outlined,
@@ -175,7 +182,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 12),
 
-                        // Confirm Password
                         CustomTextField(
                           hint: 'Confirm Password',
                           icon: Icons.lock_outline,
@@ -207,7 +213,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        isLoading
+                        _isSubmitting
                             ? const CircularProgressIndicator(
                                 color: Colors.grey)
                             : CustomButton(
