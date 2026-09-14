@@ -53,12 +53,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return FormField<String>(
-      initialValue: widget.controller.text,   // ✅ الإصلاح
+      initialValue: widget.controller.text,
       validator: widget.validator,
       autovalidateMode: _hasFocus
           ? AutovalidateMode.onUserInteraction
           : AutovalidateMode.disabled,
       builder: (FormFieldState<String> state) {
+        // ✅ نظهر الخطأ إذا: (الحقل مركّز) أو (المستخدم حاول الإرسال)
+        final shouldShowError = _hasFocus || state.hasError;
+
         return TextField(
           focusNode: _focusNode,
           controller: widget.controller,
@@ -72,7 +75,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 ? Icon(widget.icon, color: AppTheme.primaryMedium)
                 : null,
             suffixIcon: widget.suffixIcon,
-            errorText: _hasFocus ? state.errorText : null,
+            // ✅ الإصلاح هنا
+            errorText: shouldShowError ? state.errorText : null,
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(

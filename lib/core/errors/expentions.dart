@@ -107,27 +107,27 @@ ServerException handleDioException(DioException e) {
   switch (statusCode) {
     case 400:
       return BadResponseException(
-        ErrorModel(message: message) 
+        ErrorModel(message: message, errorMessage: message) 
       );
     case 401:
       return UnauthorizedException(
-        ErrorModel(message: message)
+        ErrorModel(message: message, errorMessage: message)
       );
     case 403:
       return ForbiddenException(
-        ErrorModel(message: message)
+        ErrorModel(message: message, errorMessage: message)
       );
     case 404:
       return NotFoundException(
-        ErrorModel(message: message)
+        ErrorModel(message: message, errorMessage: message)
       );
     case 409:
       return CofficientException(
-        ErrorModel(message: message)
+        ErrorModel(message: message, errorMessage: message)
       );
     case 422:
       return BadResponseException(
-        ErrorModel(message: message)
+        ErrorModel(message: message, errorMessage: message)
       );
     default:
       if (statusCode != null && statusCode >= 500) {
@@ -136,7 +136,7 @@ ServerException handleDioException(DioException e) {
         );
       }
       return ServerException(
-        ErrorModel(message: message)
+        ErrorModel(message: message, errorMessage: message)
       );
   }
 }

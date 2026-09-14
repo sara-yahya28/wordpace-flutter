@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wordspace/features/likes/presentation/cubit/like_cubit.dart';
+import 'package:wordspace/features/post/presentation/cubit/post_cubit.dart';
+import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_state.dart';
 import 'package:wordspace/features/user/presentation/widgets/auth_footer.dart';
@@ -30,8 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-
-      print('🟦 LoginScreen initState → resetState()');
       context.read<UserCubit>().resetState();
 
       final savedEmail = context
@@ -55,15 +55,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login(BuildContext context) async {
-    print('🟦 _login called');
-
-    if (!_formKey.currentState!.validate()) {
-      print('🟥 Validation failed');
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
-    print('🟦 _isSubmitting = true');
 
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
@@ -79,13 +73,10 @@ class _LoginScreenState extends State<LoginScreen> {
           );
     }
 
-    print('🟦 Calling cubit.login()');
     await context.read<UserCubit>().login(email, password);
-    print('🟦 cubit.login() returned');
 
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    print('🟦 _isSubmitting = false');
   }
 
   @override
@@ -93,9 +84,12 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: BlocConsumer<UserCubit, UserState>(
         listener: (context, state) {
-          print('🟨 Listener state: $state');
           if (state is UserLoaded) {
+            // 🔄 تحديث كل الـ Cubits ببيانات المستخدم الجديد
+            context.read<ProfileCubit>().getProfileStats();
+            context.read<PostCubit>().getPosts();
             context.read<LikeCubit>().getFavoritePosts();
+
             Navigator.pushReplacementNamed(context, '/home');
           } else if (state is UserError) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -107,7 +101,6 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         },
         builder: (context, state) {
-          print('🟩 Builder state: $state | _isSubmitting: $_isSubmitting');
           return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -203,7 +196,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // ✅ الزر يعتمد على _isSubmitting المحلي
                     _isSubmitting
                         ? const Center(
                             child:
