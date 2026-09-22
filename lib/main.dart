@@ -10,12 +10,17 @@ import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 import 'package:wordspace/features/user/presentation/screens/login_screen.dart';
 import 'package:wordspace/features/user/presentation/screens/register_screen.dart';
+import 'package:wordspace/features/user/presentation/screens/splash_screen.dart';
 import 'package:wordspace/features/user/presentation/screens/welcome_screen.dart';
 import 'package:wordspace/main_layout_screen.dart';
+
+// ✅ جديد: مفتاح التنقل العام
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
+
   runApp(
     DevicePreview(
       enabled: !kReleaseMode,
@@ -32,7 +37,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<UserCubit>(
-          create: (context) => di.sl<UserCubit>()..isAuthenticated(),
+          create: (context) => di.sl<UserCubit>(),
         ),
         BlocProvider<PostCubit>(
           create: (context) => di.sl<PostCubit>()..getPosts(),
@@ -41,7 +46,7 @@ class MyApp extends StatelessWidget {
           create: (context) => di.sl<ProfileCubit>()..getProfileStats(),
         ),
         BlocProvider<LikeCubit>(
-          create: (context) => di.sl<LikeCubit>()..getFavoritePosts(),
+          create: (context) => di.sl<LikeCubit>(),
         ),
       ],
       child: MaterialApp(
@@ -50,11 +55,14 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
         locale: DevicePreview.locale(context),
         builder: DevicePreview.appBuilder,
-        home: const WelcomeScreen(),
+        navigatorKey: navigatorKey, // ✅ جديد
+        home: const SplashScreen(),
         routes: {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/home': (context) => const MainLayoutScreen(),
+          '/welcome': (context) => const WelcomeScreen(),
+          '/splash': (context) => const SplashScreen(),
         },
       ),
     );

@@ -11,14 +11,18 @@ class SocialLoginButtons extends StatelessWidget {
         _buildSocialButton(
           icon: 'assets/icons/google-logo.png',
           onPressed: () {
-            // TODO: Google login
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Soon')),
+            );
           },
         ),
         const SizedBox(width: 16),
         _buildSocialButton(
           icon: 'assets/icons/facebook-logo.png',
           onPressed: () {
-            // TODO: Facebook login
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Soon')),
+            );
           },
         ),
       ],

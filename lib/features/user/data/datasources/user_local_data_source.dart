@@ -6,7 +6,7 @@ import '../../../../core/databases/cache/cache_helper.dart';
 abstract class UserLocalDataSource {
   Future<void> cacheUser(UserModel user);
   Future<UserModel> getLastUser();
-  Future<void> clearUser(); // ← أضيفيها هنا
+  Future<void> clearUser();
 }
 
 class UserLocalDataSourceImpl implements UserLocalDataSource {

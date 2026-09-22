@@ -20,9 +20,15 @@ class PostCubit extends Cubit<PostState> {
 //نخزن كل المنشورات التي تم تحميلها في posts
   List<PostEntity> posts = [];
 
-  Future<void> getPosts() async {
-    if (!hasMore || isLoading) return;
+  Future<void> getPosts({bool isRefresh = false}) async {
 
+    if (isRefresh) {
+      currentPage = 1;
+      hasMore = true;
+      posts.clear();
+    }
+
+    if (!hasMore || isLoading) return;
     isLoading = true;
 
     if (currentPage == 1) {
@@ -77,6 +83,8 @@ class PostCubit extends Cubit<PostState> {
     );
   }
 
+  
+
   Future<void> addPost({
     required String title,
     required String body,
@@ -103,4 +111,22 @@ class PostCubit extends Cubit<PostState> {
       },
     );
   }
+
+ void removePostFromList(int postId) {
+// 1. تحديث القائمة الأساسية المخزنة داخل الـ Cubit
+  posts = posts.where((post) => post.id != postId).toList();
+
+  if (state is PostSuccess) {
+    final currentState = state as PostSuccess;
+    
+    // إنشاء قائمة جديدة بدون البوست المحذوف
+ //   final updatedPosts = currentState.posts.where((post) => post.id != postId).toList();
+
+    emit(PostSuccess(
+      posts: posts,
+      currentPage: currentState.currentPage,
+      lastPage: currentState.lastPage,
+    ));
+  }
+}
 }

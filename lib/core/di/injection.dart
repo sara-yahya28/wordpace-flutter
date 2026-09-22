@@ -6,22 +6,21 @@ import 'package:wordspace/core/databases/api/api_consumer.dart';
 import 'package:wordspace/core/databases/api/dio_consumer.dart';
 import 'package:wordspace/core/databases/cache/cache_helper.dart';
 import 'package:wordspace/features/likes/data/datasources/like_local_data_source.dart';
+import 'package:wordspace/features/likes/data/datasources/like_remote_data_source.dart';
 import 'package:wordspace/features/likes/data/repositories/like_repository_impl.dart';
 import 'package:wordspace/features/likes/domain/repositories/like_repository.dart';
-import 'package:wordspace/features/likes/domain/usecases/GetFavoritePostsUseCase.dart';
-import 'package:wordspace/features/likes/domain/usecases/IsFavoriteUseCase.dart';
-import 'package:wordspace/features/likes/domain/usecases/RemoveFavoritePostUseCase.dart';
-import 'package:wordspace/features/likes/domain/usecases/SaveFavoritePostUseCase.dart';
 import 'package:wordspace/features/likes/presentation/cubit/like_cubit.dart';
 import 'package:wordspace/features/post/data/datasources/post_remote_data_source.dart';
 import 'package:wordspace/features/post/data/repositories/post_repository_impl.dart';
 import 'package:wordspace/features/post/domain/repositories/post_repository.dart';
 import 'package:wordspace/features/post/domain/usecases/add_post_usecase.dart';
+import 'package:wordspace/features/post/domain/usecases/delete_post_usecase.dart';
 import 'package:wordspace/features/post/domain/usecases/get_posts_usecase.dart';
 import 'package:wordspace/features/post/presentation/cubit/post_cubit.dart';
 import 'package:wordspace/features/profile/data/datasources/profile_remote_data_source.dart';
 import 'package:wordspace/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:wordspace/features/profile/domain/repositories/profile_repository.dart';
+import 'package:wordspace/features/profile/domain/usecases/get_my_posts_usecase.dart';
 import 'package:wordspace/features/profile/domain/usecases/get_profile_stats_usecase.dart';
 import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:wordspace/features/user/data/datasources/user_local_data_source.dart';
@@ -32,7 +31,6 @@ import 'package:wordspace/features/user/domain/usecases/get_user.dart';
 import 'package:wordspace/features/user/domain/usecases/login_usecase.dart';
 import 'package:wordspace/features/user/domain/usecases/register_usecase.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
-
 import 'package:wordspace/features/post/data/datasources/comment_remote_data_source.dart';
 import 'package:wordspace/features/post/data/repositories/comment_repository_impl.dart';
 import 'package:wordspace/features/post/domain/repositories/comment_repository.dart';
@@ -100,7 +98,14 @@ Future<void> init() async {
   sl.registerLazySingleton<GetProfileStatsUseCase>(
     () => GetProfileStatsUseCase(repository: sl()),
   );
-  sl.registerFactory(() => ProfileCubit(getProfileStatsUseCase: sl()));
+  sl.registerLazySingleton<GetMyPostsUseCase>(
+    () => GetMyPostsUseCase(repository: sl()),
+  );
+  sl.registerFactory(() => ProfileCubit(
+        getProfileStatsUseCase: sl(),
+        getMyPostsUseCase: sl(),
+        deletePostUseCase: sl(),
+      ));
 
   // Post Feature
   sl.registerLazySingleton<PostRemoteDataSource>(
@@ -124,28 +129,29 @@ Future<void> init() async {
     ),
   );
 
+  
+  sl.registerLazySingleton<DeletePostUseCase>(
+    () => DeletePostUseCase(repository: sl()),
+  );
+
+  // Likes Feature
   // Likes Feature
   sl.registerLazySingleton<LikeLocalDataSource>(
-    () => LikeLocalDataSourceImpl(cache: sl()),
+    () => LikeLocalDataSourceImpl(cache: sl(), userLocalDataSource: sl()),
+  );
+  sl.registerLazySingleton<LikeRemoteDataSource>(
+    () => LikeRemoteDataSourceImpl(apiConsumer: sl()),
   );
   sl.registerLazySingleton<LikeRepository>(
-    () => LikeRepositoryImpl(likeLocalDataSource: sl()),
-  );
-  sl.registerLazySingleton(() => GetFavoritePostsUseCase(likeRepository: sl()));
-  sl.registerLazySingleton(() => IsFavoriteUseCase(likeRepository: sl()));
-  sl.registerLazySingleton(
-      () => RemoveFavoritePostUseCase(likeRepository: sl()));
-  sl.registerLazySingleton(() => SaveFavoritePostUseCase(likeRepository: sl()));
-
-  sl.registerFactory<LikeCubit>(
-    () => LikeCubit(
-      getFavoritePostsUseCase: sl(),
-      isFavoriteUseCase: sl(),
-      removeFavoritePostUseCase: sl(),
-      saveFavoritePostUseCase: sl(),
+    () => LikeRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+      networkInfo: sl(),
     ),
   );
-
+sl.registerFactory<LikeCubit>(
+  () => LikeCubit(likeRepository: sl()),
+);
   // comment feature
   sl.registerLazySingleton<CommentRemoteDataSource>(
     () => CommentRemoteDataSourceImpl(api: sl()),
@@ -176,6 +182,5 @@ Future<void> init() async {
       deleteCommentUseCase: sl(),
     ),
   );
-
 
 }

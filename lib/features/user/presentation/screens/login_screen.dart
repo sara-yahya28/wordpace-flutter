@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wordspace/core/di/injection.dart';
+import 'package:wordspace/features/likes/presentation/cubit/like_cubit.dart';
+import 'package:wordspace/features/post/presentation/cubit/post_cubit.dart';
+import 'package:wordspace/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_state.dart';
 import 'package:wordspace/features/user/presentation/widgets/auth_footer.dart';
@@ -23,6 +25,27 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _rememberMe = false;
   bool _isPasswordVisible = false;
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<UserCubit>().resetState();
+
+      final savedEmail = context
+          .read<UserCubit>()
+          .cacheHelper
+          .getDataString(key: 'remembered_email');
+      if (savedEmail != null && savedEmail.isNotEmpty) {
+        setState(() {
+          _emailController.text = savedEmail;
+          _rememberMe = true;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -31,12 +54,29 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _login(BuildContext context) {
-    if (_formKey.currentState!.validate()) {
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
-      context.read<UserCubit>().login(email, password);
+  Future<void> _login(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (_rememberMe) {
+      await context.read<UserCubit>().cacheHelper.saveData(
+            key: 'remembered_email',
+            value: email,
+          );
+    } else {
+      await context.read<UserCubit>().cacheHelper.removeData(
+            key: 'remembered_email',
+          );
     }
+
+    await context.read<UserCubit>().login(email, password);
+
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
   }
 
   @override
@@ -45,6 +85,11 @@ class _LoginScreenState extends State<LoginScreen> {
       body: BlocConsumer<UserCubit, UserState>(
         listener: (context, state) {
           if (state is UserLoaded) {
+            // 🔄 تحديث كل الـ Cubits ببيانات المستخدم الجديد
+            context.read<ProfileCubit>().getProfileStats();
+            context.read<PostCubit>().getPosts();
+            context.read<LikeCubit>().getFavoritePosts();
+
             Navigator.pushReplacementNamed(context, '/home');
           } else if (state is UserError) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -56,17 +101,14 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         },
         builder: (context, state) {
-          final isLoading = state is UserLoading;
           return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: Form(
                 key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Header
                     const AuthHeader(
                       title: 'Welcome Back',
                       subtitle: 'Login to your account to continue',
@@ -74,9 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 40),
 
-                    // Email Field
                     CustomTextField(
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       hint: 'Email address',
                       icon: Icons.email_outlined,
                       controller: _emailController,
@@ -85,7 +125,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
                         }
-                        // التحقق من صيغة الإيميل
                         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                             .hasMatch(value)) {
                           return 'Enter a valid email address';
@@ -95,9 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Password Field
                     CustomTextField(
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       hint: 'Password',
                       icon: Icons.lock_outlined,
                       obscureText: !_isPasswordVisible,
@@ -127,7 +164,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Remember Me & Forgot Password
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -160,8 +196,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    isLoading
-                        ? const CircularProgressIndicator(color: Colors.grey)
+                    _isSubmitting
+                        ? const Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.grey),
+                          )
                         : CustomButton(
                             text: 'Log In',
                             onPressed: () {
@@ -170,7 +209,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                     const SizedBox(height: 16),
 
-                    // Or continue with
                     const Row(
                       children: [
                         Expanded(child: Divider()),
@@ -183,11 +221,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Social Buttons
                     const SocialLoginButtons(),
                     const SizedBox(height: 32),
 
-                    // Footer
                     AuthFooter(
                       text: "Don't have an account?",
                       actionText: 'Sign Up',

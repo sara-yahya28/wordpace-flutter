@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:wordspace/core/databases/api/api_consumer.dart';
 import 'package:wordspace/core/databases/api/end_points.dart';
 import 'package:wordspace/core/errors/expentions.dart';
+import 'package:wordspace/main.dart' show navigatorKey;
 import '../cache/cache_helper.dart';
 
 class DioConsumer extends ApiConsumer {
@@ -17,7 +18,6 @@ class DioConsumer extends ApiConsumer {
       'Content-Type': 'application/json',
     };
 
-// interceptor to add token
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -27,8 +27,16 @@ class DioConsumer extends ApiConsumer {
           }
           return handler.next(options);
         },
-        onError: (e, handler) {
+        onError: (e, handler) async {
+          // ✅ الأهم: عند 401 → امسح التوكن وروح Welcome
           if (e.response?.statusCode == 401) {
+            print('🔴 401 - Token منتهي → Auto Logout');
+            await cacheHelper.removeData(key: 'token');
+            await cacheHelper.removeData(key: 'CachedUser');
+            navigatorKey.currentState?.pushNamedAndRemoveUntil(
+              '/welcome',
+              (route) => false,
+            );
           }
           return handler.next(e);
         },
@@ -40,14 +48,10 @@ class DioConsumer extends ApiConsumer {
   Future<dynamic> get(String path,
       {Object? data, Map<String, dynamic>? queryParameters}) async {
     try {
-      final response = await dio.get(
-        path,
-        data: data,
-        queryParameters: queryParameters,
-      );
+      final response = await dio.get(path, data: data, queryParameters: queryParameters);
       return response.data;
     } on DioException catch (e) {
-      handleDioException(e);
+      throw handleDioException(e);
     }
   }
 
@@ -64,7 +68,7 @@ class DioConsumer extends ApiConsumer {
       );
       return response.data;
     } on DioException catch (e) {
-      handleDioException(e);
+      throw handleDioException(e);
     }
   }
 
@@ -81,7 +85,7 @@ class DioConsumer extends ApiConsumer {
       );
       return response.data;
     } on DioException catch (e) {
-      handleDioException(e);
+      throw handleDioException(e);
     }
   }
 
@@ -89,14 +93,10 @@ class DioConsumer extends ApiConsumer {
   Future<dynamic> delete(String path,
       {Object? data, Map<String, dynamic>? queryParameters}) async {
     try {
-      final response = await dio.delete(
-        path,
-        data: data,
-        queryParameters: queryParameters,
-      );
+      final response = await dio.delete(path, data: data, queryParameters: queryParameters);
       return response.data;
     } on DioException catch (e) {
-      handleDioException(e);
+      throw handleDioException(e);
     }
   }
 }

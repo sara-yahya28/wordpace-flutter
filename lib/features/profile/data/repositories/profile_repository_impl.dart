@@ -35,7 +35,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
     if (await networkInfo.isConnected!) {
       try {
         final myPosts = await remoteDataSource.getMyPosts();
-        return Right(myPosts.cast<PostEntity>());
+        
+        //  استخدام toEntity() بدلاً من cast<PostEntity>() تحل المشكلة 100%
+        final postsList = myPosts.map((postModel) => postModel.toEntity()).toList();
+        
+        return Right(postsList);
       } on ServerException catch (e) {
         return Left(Failure(errMessage: e.errorModel.message ?? 'خطأ في السيرفر'));
       }

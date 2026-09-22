@@ -16,14 +16,16 @@ final class GetFavoritePostsLoadingState extends LikeState {
 final class GetFavoritePostsSuccessState extends LikeState {
   final List<PostEntity> posts;
   final Set<int> favoriteIds;
+  final Map<int, int> likesCountOverrides;
 
   GetFavoritePostsSuccessState({
     required this.posts,
     required this.favoriteIds,
+    this.likesCountOverrides = const {},
   });
 
   @override
-  List<Object> get props => [posts, favoriteIds];
+  List<Object> get props => [posts, favoriteIds, likesCountOverrides];
 }
 
 final class GetFavoritePostsErrorState extends LikeState {
@@ -33,13 +35,4 @@ final class GetFavoritePostsErrorState extends LikeState {
 
   @override
   List<Object> get props => [errMessage];
-}
-
-final class IsFavoriteStatusState extends LikeState {
-  final Set<int> favoriteIds;
-
-  IsFavoriteStatusState({required this.favoriteIds});
-
-  @override
-  List<Object> get props => [favoriteIds];
 }

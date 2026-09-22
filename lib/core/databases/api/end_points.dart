@@ -12,6 +12,8 @@ class EndPoints {
   static String postDetails(int postId) => '/posts/$postId';
   static const String userPosts = '/user/posts';
 
+  static String deletePost(int id) => 'posts/$id';
+
   // Comments
   static String commentDetails(int postId, int commentId) =>
       '/posts/$postId/comments/$commentId';
@@ -72,8 +74,7 @@ class ApiKeys {
   static String like = "like";
   static String postId = "post_id";
   static String commentId = "comment_id";
-  static String likedByMe = "liked_by_me";
-
+static String likedByMe = "is_liked_by_me";
   static String statusCode = "status_code";
   static String errorMessage = "error_message";
 }
