@@ -1,6 +1,5 @@
 class EndPoints {
-static const String baseUrl = "http://209.74.71.65/api/";
-
+ static const String baseUrl = "http://209.74.71.65/api/";
 
   // Auth
   static const String register = '/register';
