@@ -39,12 +39,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.red),
             onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (dialogContext) => AlertDialog(
+                  title: const Text('Logout'),
+                  content: const Text('Are You Sure?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(dialogContext, false),
+                        child: const Text('Cancel')),
+                    TextButton(
+                        onPressed: () => Navigator.pop(dialogContext, true),
+                        child: const Text('Logout',
+                            style: TextStyle(color: Colors.red)))
+                  ],
+                ),
+              );
+              if (confirmed != true) return;
+              if (!context.mounted) return;
               await context.read<UserCubit>().logout();
 
               if (!context.mounted) return;
-
               context.read<LikeCubit>().reset();
-
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (_) => const WelcomeScreen()),
@@ -121,7 +137,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  if (state is GetMyPostsLoadingState && cubit.myPostsList.isEmpty)
+                  if (state is GetMyPostsLoadingState &&
+                      cubit.myPostsList.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20.0),
                       child: Center(child: CircularProgressIndicator()),
