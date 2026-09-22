@@ -12,6 +12,7 @@ class CommentRepositoryImpl implements CommentRepository {
     required this.remoteDataSource,
   });
 
+//جلب التعليقات
   @override
   Future<Either<Failure, List<CommentEntity>>> getComments(
       int postId) async {
@@ -31,6 +32,7 @@ class CommentRepositoryImpl implements CommentRepository {
       );
     }
   }
+  //إضافة تعليق
   @override
   Future<Either<Failure, CommentEntity>> addComment(
       int postId, String body) async {
@@ -50,7 +52,22 @@ class CommentRepositoryImpl implements CommentRepository {
       );
     }
   }
+//حذف تعليق
+  @override
+  Future<Either<Failure, Unit>> deleteComment(int commentId) async {
+    try {
+      await remoteDataSource.deleteComment(commentId);
 
+      return const Right(unit);
+    } on ServerException catch (e) {
+      return Left(
+        Failure(
+          errMessage:
+              e.errorModel.errorMessage ?? 'حدث خطأ في السيرفر',
+        ),
+      );
+    }
+  }
 
 
 }

@@ -7,7 +7,8 @@ abstract class CommentRemoteDataSource {
   Future<List<CommentModel>> getComments(int postId);
 //إضافة تعليق
   Future<CommentModel> addComment(int postId, String body);
-
+//حذف تعليق
+Future<void> deleteComment(int commentId);
 }
 
 class CommentRemoteDataSourceImpl implements CommentRemoteDataSource {
@@ -41,6 +42,13 @@ class CommentRemoteDataSourceImpl implements CommentRemoteDataSource {
     );
 
     return CommentModel.fromJson(response[ApiKeys.data]);
+  }
+  //لحذف الكومنت
+  @override
+  Future<void> deleteComment(int commentId) async {
+    await api.delete(
+      EndPoints.deleteComment(commentId),
+    );
   }
 
 

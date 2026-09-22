@@ -21,12 +21,31 @@ class CommentFailure extends CommentState {
     required this.message,
   });
 }
+//لإضافة الكومنت
 class CommentAdding extends CommentState {}
 
 class CommentAddFailure extends CommentState {
   final String message;
 
   CommentAddFailure({
+    required this.message,
+  });
+}
+//للحذف
+class CommentDeleting extends CommentState {}
+
+class CommentDeleteSuccess extends CommentState {
+  final List<CommentEntity> comments;
+
+  CommentDeleteSuccess({
+    required this.comments,
+  });
+}
+
+class CommentDeleteFailure extends CommentState {
+  final String message;
+
+  CommentDeleteFailure({
     required this.message,
   });
 }
