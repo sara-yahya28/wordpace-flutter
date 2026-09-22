@@ -6,12 +6,9 @@ import 'package:wordspace/core/databases/api/api_consumer.dart';
 import 'package:wordspace/core/databases/api/dio_consumer.dart';
 import 'package:wordspace/core/databases/cache/cache_helper.dart';
 import 'package:wordspace/features/likes/data/datasources/like_local_data_source.dart';
+import 'package:wordspace/features/likes/data/datasources/like_remote_data_source.dart';
 import 'package:wordspace/features/likes/data/repositories/like_repository_impl.dart';
 import 'package:wordspace/features/likes/domain/repositories/like_repository.dart';
-import 'package:wordspace/features/likes/domain/usecases/GetFavoritePostsUseCase.dart';
-import 'package:wordspace/features/likes/domain/usecases/IsFavoriteUseCase.dart';
-import 'package:wordspace/features/likes/domain/usecases/RemoveFavoritePostUseCase.dart';
-import 'package:wordspace/features/likes/domain/usecases/SaveFavoritePostUseCase.dart';
 import 'package:wordspace/features/likes/presentation/cubit/like_cubit.dart';
 import 'package:wordspace/features/post/data/datasources/post_remote_data_source.dart';
 import 'package:wordspace/features/post/data/repositories/post_repository_impl.dart';
@@ -137,27 +134,23 @@ Future<void> init() async {
   );
 
   // Likes Feature
+  // Likes Feature
   sl.registerLazySingleton<LikeLocalDataSource>(
     () => LikeLocalDataSourceImpl(cache: sl(), userLocalDataSource: sl()),
   );
-  sl.registerLazySingleton<LikeRepository>(
-    () => LikeRepositoryImpl(likeLocalDataSource: sl()),
+  sl.registerLazySingleton<LikeRemoteDataSource>(
+    () => LikeRemoteDataSourceImpl(apiConsumer: sl()),
   );
-  sl.registerLazySingleton(() => GetFavoritePostsUseCase(likeRepository: sl()));
-  sl.registerLazySingleton(() => IsFavoriteUseCase(likeRepository: sl()));
-  sl.registerLazySingleton(
-      () => RemoveFavoritePostUseCase(likeRepository: sl()));
-  sl.registerLazySingleton(() => SaveFavoritePostUseCase(likeRepository: sl()));
-
-  sl.registerFactory<LikeCubit>(
-    () => LikeCubit(
-      getFavoritePostsUseCase: sl(),
-      isFavoriteUseCase: sl(),
-      removeFavoritePostUseCase: sl(),
-      saveFavoritePostUseCase: sl(),
+  sl.registerLazySingleton<LikeRepository>(
+    () => LikeRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+      networkInfo: sl(),
     ),
   );
-
+sl.registerFactory<LikeCubit>(
+  () => LikeCubit(likeRepository: sl()),
+);
   // comment feature
   sl.registerLazySingleton<CommentRemoteDataSource>(
     () => CommentRemoteDataSourceImpl(api: sl()),

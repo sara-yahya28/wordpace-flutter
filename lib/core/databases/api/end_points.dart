@@ -1,5 +1,5 @@
 class EndPoints {
- static const String baseUrl = "http://209.74.71.65/api/";
+  static const String baseUrl = "http://209.74.71.65/api/";
 
   // Auth
   static const String register = '/register';
@@ -74,8 +74,7 @@ class ApiKeys {
   static String like = "like";
   static String postId = "post_id";
   static String commentId = "comment_id";
-  static String likedByMe = "liked_by_me";
-
+static String likedByMe = "is_liked_by_me";
   static String statusCode = "status_code";
   static String errorMessage = "error_message";
 }
