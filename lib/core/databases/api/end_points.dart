@@ -1,6 +1,5 @@
 class EndPoints {
-  static const String baseUrl =
-      "http://127.0.0.1:8000/api"; // غيّر عند النشر
+  static const String baseUrl = "http://209.74.71.65/api"; // غيّر عند النشر
 
   // Auth
   static const String register = '/register';
@@ -17,7 +16,7 @@ class EndPoints {
   static String commentDetails(int postId, int commentId) =>
       '/posts/$postId/comments/$commentId';
   static String postComments(int postId) => '/posts/$postId/comments';
-
+  static String deleteComment(int commentId) => '/comments/$commentId';
   // Likes
   static String postLikes(int postId) => '/posts/$postId/likes';
   static const String likedPosts = '/user/liked-posts';

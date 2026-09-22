@@ -8,6 +8,7 @@ import 'package:wordspace/features/post/presentation/widgets/add_comment_widget.
 import 'package:wordspace/features/post/presentation/widgets/comment_item_widget.dart';
 import 'package:wordspace/features/post/presentation/widgets/post_details_widget.dart';
 import 'package:wordspace/features/post/utils/date_formatter.dart';
+import 'package:wordspace/features/user/data/datasources/user_local_data_source.dart';
 
 class PostDetailsScreen extends StatelessWidget {
   final PostEntity post;
@@ -19,138 +20,204 @@ class PostDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<CommentCubit>()..getComments(post.id),
-      child: Builder(
-        builder: (context) {
-          return PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, result) {
-              if (didPop) return;
+    final userLocalDataSource = sl<UserLocalDataSource>();
 
-              final commentsCount =
-                  context.read<CommentCubit>().comments.length;
-
-              Navigator.pop(context, commentsCount);
-            },
-            child: Scaffold(
-              appBar: AppBar(
-                title: const Text('Post Details'),
-                automaticallyImplyLeading: true,
-              ),
-              body: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      BlocBuilder<CommentCubit, CommentState>(
-                        builder: (context, state) {
-                          final commentsCount =
-                              context.read<CommentCubit>().comments.length;
-
-                          return PostDetailsWidget(
-                            username: post.user.name,
-                            time: formatPostTime(post.createdAt),
-                            title: post.title,
-                            content: post.content,
-                            likes: post.likesCount,
-                            comments: commentsCount,
-                            post: post,
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      const Divider(color: Colors.grey),
-                      const SizedBox(height: 24),
-                      BlocBuilder<CommentCubit, CommentState>(
-                        builder: (context, state) {
-                          final commentsCount =
-                              context.read<CommentCubit>().comments.length;
-
-                          return Text(
-                            'Comments ($commentsCount)',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      BlocBuilder<CommentCubit, CommentState>(
-                        builder: (context, state) {
-                          if (state is CommentLoading) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          if (state is CommentFailure) {
-                            return Center(
-                              child: Text(state.message),
-                            );
-                          }
-
-                          if (state is CommentSuccess) {
-                            if (state.comments.isEmpty) {
-                              return const Center(
-                                child: Text('No comments yet'),
-                              );
-                            }
-
-                            return Column(
-                              children: state.comments.map((comment) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(
-                                    bottom: 16,
-                                  ),
-                                  child: CommentItemWidget(
-                                    username: comment.userName,
-                                    time: formatPostTime(
-                                      comment.createdAt,
-                                    ),
-                                    comment: comment.content,
-                                  ),
-                                );
-                              }).toList(),
-                            );
-                          }
-
-                          return const SizedBox.shrink();
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-              ),
-              bottomSheet: BlocBuilder<CommentCubit, CommentState>(
-                builder: (context, state) {
-                  final isLoading = state is CommentAdding;
-
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                      bottom: 35,
-                    ),
-                    child: AddCommentWidget(
-                      isLoading: isLoading,
-                      onSend: (body) {
-                        context.read<CommentCubit>().addComment(
-                              post.id,
-                              body,
-                            );
-                      },
-                    ),
-                  );
-                },
-              ),
+    return FutureBuilder(
+      future: userLocalDataSource.getLastUser(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
             ),
           );
-        },
-      ),
+        }
+
+        final currentUser = snapshot.data!;
+
+        return BlocProvider(
+          create: (_) => sl<CommentCubit>()..getComments(post.id),
+          child: Builder(
+            builder: (context) {
+              return PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop) return;
+
+                  final commentsCount =
+                      context.read<CommentCubit>().comments.length;
+
+                  Navigator.pop(context, commentsCount);
+                },
+                child: Scaffold(
+                  appBar: AppBar(
+                    title: const Text('Post Details'),
+                    automaticallyImplyLeading: true,
+                  ),
+                  body: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          BlocBuilder<CommentCubit, CommentState>(
+                            builder: (context, state) {
+                              final commentsCount =
+                                  context.read<CommentCubit>().comments.length;
+
+                              return PostDetailsWidget(
+                                username: post.user.name,
+                                time: formatPostTime(post.createdAt),
+                                title: post.title,
+                                content: post.content,
+                                likes: post.likesCount,
+                                comments: commentsCount,
+                                post: post,
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 24),
+                          const Divider(color: Colors.grey),
+                          const SizedBox(height: 24),
+                          BlocBuilder<CommentCubit, CommentState>(
+                            builder: (context, state) {
+                              final commentsCount =
+                                  context.read<CommentCubit>().comments.length;
+
+                              return Text(
+                                'Comments ($commentsCount)',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          BlocBuilder<CommentCubit, CommentState>(
+                            builder: (context, state) {
+                              if (state is CommentLoading) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+
+                              if (state is CommentFailure) {
+                                return Center(
+                                  child: Text(state.message),
+                                );
+                              }
+
+                              final comments =
+                                  context.read<CommentCubit>().comments;
+
+                              if (comments.isEmpty) {
+                                return const Center(
+                                  child: Text('No comments yet'),
+                                );
+                              }
+
+                              return Column(
+                                children: comments.map((comment) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: 16,
+                                    ),
+                                    child: CommentItemWidget(
+                                      username: comment.userName,
+                                      time: formatPostTime(
+                                        comment.createdAt,
+                                      ),
+                                      comment: comment.content,
+
+                                      // يظهر الحذف لصاحب التعليق فقط
+                                      canDelete:
+                                          comment.userId == currentUser.id,
+                                      isDeleting: context
+                                              .read<CommentCubit>()
+                                              .deletingCommentId ==comment.id,
+
+                                      onDelete: () async {
+                                        final shouldDelete =
+                                            await showDialog<bool>(
+                                          context: context,
+                                          builder: (dialogContext) {
+                                            return AlertDialog(
+                                              title:
+                                                  const Text('Delete comment?'),
+                                              content: const Text(
+                                                'Are you sure you want to delete this comment?',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        dialogContext, false);
+                                                  },
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        dialogContext, true);
+                                                  },
+                                                  child: const Text(
+                                                    'Delete',
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+
+                                        if (shouldDelete == true) {
+                                          context
+                                              .read<CommentCubit>()
+                                              .deleteComment(comment.id);
+                                        }
+                                      },
+                                    ),
+                                  );
+                                }).toList(),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                  bottomSheet: BlocBuilder<CommentCubit, CommentState>(
+                    builder: (context, state) {
+                      final isLoading = state is CommentAdding;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          left: 16,
+                          right: 16,
+                          bottom: 35,
+                        ),
+                        child: AddCommentWidget(
+                          isLoading: isLoading,
+                          onSend: (body) {
+                            context.read<CommentCubit>().addComment(
+                                  post.id,
+                                  body,
+                                );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

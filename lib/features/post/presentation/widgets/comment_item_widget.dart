@@ -5,12 +5,18 @@ class CommentItemWidget extends StatelessWidget {
   final String username;
   final String time;
   final String comment;
+  final bool canDelete;
+  final VoidCallback? onDelete;
+  final bool isDeleting;
 
   const CommentItemWidget({
     super.key,
     required this.username,
     required this.time,
     required this.comment,
+    this.canDelete = false,
+    this.onDelete,
+    this.isDeleting = false,
   });
 
   @override
@@ -18,7 +24,6 @@ class CommentItemWidget extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // User avatar
         CircleAvatar(
           radius: 18,
           backgroundColor: AppTheme.primaryDark,
@@ -31,15 +36,11 @@ class CommentItemWidget extends StatelessWidget {
             ),
           ),
         ),
-
         const SizedBox(width: 10),
-
-        // Comment content
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Username + time
               Row(
                 children: [
                   Text(
@@ -60,12 +61,9 @@ class CommentItemWidget extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 4),
-
-              // Comment + Like
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(
@@ -77,7 +75,26 @@ class CommentItemWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  if (canDelete)
+                    isDeleting
+                        ? const SizedBox(
+                            width: 19,
+                            height: 19,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : IconButton(
+                            onPressed: onDelete,
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              size: 19,
+                            ),
+                            color: Colors.redAccent,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            tooltip: 'Delete comment',
+                          ),
                 ],
               ),
             ],
