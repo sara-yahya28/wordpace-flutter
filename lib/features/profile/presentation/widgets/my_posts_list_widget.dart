@@ -60,7 +60,9 @@ class MyPostsListWidget extends StatelessWidget {
               radius: 24,
               backgroundColor: AppTheme.primaryDark,
               child: Text(
-                post.user.name.isNotEmpty ? post.user.name[0].toUpperCase() : 'U',
+                post.user.name.isNotEmpty
+                    ? post.user.name[0].toUpperCase()
+                    : 'U',
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -83,20 +85,23 @@ class MyPostsListWidget extends StatelessWidget {
                   post.content,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13, color: AppTheme.primaryMedium),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppTheme.primaryMedium,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                
+
                 BlocBuilder<LikeCubit, LikeState>(
                   builder: (context, state) {
                     bool isFav = false;
+                    int displayedLikes = post.likesCount;
+
                     if (state is GetFavoritePostsSuccessState) {
                       isFav = state.favoriteIds.contains(post.id);
-                    } else if (state is IsFavoriteStatusState) {
-                      isFav = state.favoriteIds.contains(post.id);
+                      displayedLikes =
+                          state.likesCountOverrides[post.id] ?? post.likesCount;
                     }
-
-                    final displayedLikes = post.likesCount + (isFav ? 1 : 0);
 
                     return Row(
                       children: [
@@ -111,7 +116,6 @@ class MyPostsListWidget extends StatelessWidget {
                           style: const TextStyle(fontSize: 12),
                         ),
                         const SizedBox(width: 16),
-                       
                       ],
                     );
                   },
