@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wordspace/features/likes/presentation/cubit/like_cubit.dart';
 import 'package:wordspace/features/user/presentation/cubit/user_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -24,6 +25,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (userCubit.isAuthenticated()) {
       print('🔍 Splash: توكن موجود → Home');
+      // جيبي إعجابات المستخدم قبل ما تروحي Home
+      context.read<LikeCubit>().getFavoritePosts();
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       print('🔍 Splash: مافي توكن → Welcome');

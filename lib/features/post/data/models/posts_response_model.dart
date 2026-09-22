@@ -19,21 +19,18 @@ class PostsResponseModel {
     required this.total,
   });
 
-  factory PostsResponseModel.fromJson(Map<String, dynamic> json) {
-    final data = json[ApiKeys.data];
-    final meta = json['meta'];
+factory PostsResponseModel.fromJson(Map<String, dynamic> json) {
+  final data = json[ApiKeys.data] as List;
+  final meta = json['meta']; // ممكن تكون null
 
-    return PostsResponseModel(
-      posts: (data as List)
-          .map((post) => PostModel.fromJson(post))
-          .toList(),
-      currentPage: meta['current_page'],
-      lastPage: meta['last_page'],
-      perPage: meta['per_page'],
-      total: meta['total'],
-    );
-  }
-
+  return PostsResponseModel(
+    posts: data.map((post) => PostModel.fromJson(post)).toList(),
+    currentPage: meta?['current_page'] ?? 1,
+    lastPage: meta?['last_page'] ?? 1,
+    perPage: meta?['per_page'] ?? data.length,
+    total: meta?['total'] ?? data.length,
+  );
+}
   PostsResponseEntity toEntity() {
     return PostsResponseEntity(
       posts: posts.map((post) => post.toEntity()).toList(),

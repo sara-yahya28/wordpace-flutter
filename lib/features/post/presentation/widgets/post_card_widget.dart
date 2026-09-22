@@ -124,13 +124,13 @@ class PostCardWidget extends StatelessWidget {
                   const SizedBox(width: 5),
                   BlocBuilder<LikeCubit, LikeState>(
                     builder: (context, state) {
-                      bool isFav = false;
+                      int displayedLikes = likes;
+
                       if (state is GetFavoritePostsSuccessState) {
-                        isFav = state.favoriteIds.contains(post.id);
-                      } else if (state is IsFavoriteStatusState) {
-                        isFav = state.favoriteIds.contains(post.id);
+                        displayedLikes =
+                            state.likesCountOverrides[post.id] ?? likes;
                       }
-                      final displayedLikes = likes + (isFav ? 1 : 0);
+
                       return Text(
                         '$displayedLikes',
                         style: const TextStyle(

@@ -13,7 +13,7 @@ class PostDetailsWidget extends StatelessWidget {
   final String content;
   final int likes;
   final int comments;
-  final PostEntity post; // ← ADDED: we need the PostEntity for FavoriteIconButton
+  final PostEntity post;
 
   const PostDetailsWidget({
     super.key,
@@ -23,7 +23,7 @@ class PostDetailsWidget extends StatelessWidget {
     required this.content,
     required this.likes,
     required this.comments,
-    required this.post, // ← CHANGED: replaced isLiked with post
+    required this.post,
   });
 
   @override
@@ -95,13 +95,13 @@ class PostDetailsWidget extends StatelessWidget {
             const SizedBox(width: 5),
             BlocBuilder<LikeCubit, LikeState>(
               builder: (context, state) {
-                bool isFav = false;
+                int displayedLikes = likes;
+
                 if (state is GetFavoritePostsSuccessState) {
-                  isFav = state.favoriteIds.contains(post.id);
-                } else if (state is IsFavoriteStatusState) {
-                  isFav = state.favoriteIds.contains(post.id);
+                  displayedLikes =
+                      state.likesCountOverrides[post.id] ?? likes;
                 }
-                final displayedLikes = likes + (isFav ? 1 : 0);
+
                 return Text(
                   '$displayedLikes',
                   style: const TextStyle(
