@@ -127,7 +127,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
           //  عند الانتقال للهوم: إعادة جلب منشورات الهوم للتأكد من اختفاء المنشورات المحذوفة
           if (index == 0) {
-            context.read<PostCubit>().getPosts();
+          context.read<PostCubit>().getPosts(isRefresh: true);
           }
          
 
